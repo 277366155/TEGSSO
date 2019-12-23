@@ -1,7 +1,7 @@
 ﻿namespace TEG.SSO.Entity.DTO
 {
     /// <summary>
-    /// 密保问题信息
+    ///密保问题信息
     /// </summary>
     public  class QuestionInfo
     {
