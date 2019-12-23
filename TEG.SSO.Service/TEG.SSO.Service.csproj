@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="6.2.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TEG.SSO.EFCoreContext\TEG.SSO.EFCoreContext.csproj" />
+    <ProjectReference Include="..\TEG.SSO.Entity\TEG.SSO.Entity.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
+      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.mvc.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="TEG.Framework.Security">
+      <HintPath>..\DLLLibrary\TEG.Framework.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="TEG.Framework.Standard.Cache">
+      <HintPath>..\DLLLibrary\TEG.Framework.Standard.Cache.dll</HintPath>
+    </Reference>
+    <Reference Include="TEG.Framework.Standard.Utils">
+      <HintPath>..\DLLLibrary\TEG.Framework.Standard.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="TEG.Framework.Utility">
+      <HintPath>..\DLLLibrary\TEG.Framework.Utility.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

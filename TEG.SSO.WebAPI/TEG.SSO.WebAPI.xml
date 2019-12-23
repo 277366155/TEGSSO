@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TEG.SSO.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="T:TEG.SSO.WebAPI.Controllers.AccountController">
+            <summary>
+            账号相关模块
+            </summary>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.LoginAsync(TEG.SSO.Entity.Param.UserLogin)">
+            <summary>
+            登录
+            </summary>
+            <param name="userLogin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.LogoutAsync(TEG.SSO.Entity.Param.RequestBase)">
+            <summary>
+            注销
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.RetrievePasswordAsync(TEG.SSO.Entity.Param.RetrievePassword)">
+            <summary>
+            找回密码,发送验证码。todo..
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetCurrentUserInfo(TEG.SSO.Entity.Param.RequestBase)">
+            <summary>
+             获取当前用户信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetUserInfoAsync(TEG.SSO.Entity.Param.UserIDList)">
+            <summary>
+            获取指定用户的信息
+            </summary>
+            <param name="userIDList"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.CheckAccountIsExistAsync(TEG.SSO.Entity.Param.AccountNameParam)">
+            <summary>
+            检查登录名是否已被占用
+            </summary>
+            <param name="param"></param>
+            <returns>是否存在用户名：true-存在，false-不存在</returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.UpdateUserAsync(TEG.SSO.Entity.Param.UpdateUsers)">
+            <summary>
+            更新用户信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.AddUserAsync(TEG.SSO.Entity.Param.NewUserList)">
+            <summary>
+            新增用户
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.DisableUserAsync(TEG.SSO.Entity.Param.UserIDList)">
+            <summary>
+            禁用指定用户
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.EnableUserAsync(TEG.SSO.Entity.Param.UserIDList)">
+            <summary>
+            启用指定用户
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.DeleteUserAsync(TEG.SSO.Entity.Param.UserIDList)">
+            <summary>
+            删除指定用户
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="F:TEG.SSO.WebAPI.Controllers.BaseController.CurrentUser">
+            <summary>
+            当前用户信息
+            </summary>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetCurrentQuestionAsync(TEG.SSO.Entity.Param.PasswordRequest)">
+            <summary>
+            获取当前用户密保问题
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetAllSecurityQuestionAsync(TEG.SSO.Entity.Param.RequestBase)">
+            <summary>
+            获取所有密保问题列表
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.SetSecurityQuestionAsync(TEG.SSO.Entity.Param.SetSecurityQuestion)">
+            <summary>
+            设置密保问题
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.ResetSecurityQuestionAsync(TEG.SSO.Entity.Param.ResetSecurityQuestion)">
+            <summary>
+            重置密保问题
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
