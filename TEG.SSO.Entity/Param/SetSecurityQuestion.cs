@@ -20,7 +20,8 @@ namespace TEG.SSO.Entity.Param
         /// <summary>
         /// 安全问题id
         /// </summary>
-        [Required]        
+        [Required]
+        [Range(1, int.MaxValue)]
         public int SecurityQuestionID { get; set; }
 
         /// <summary>

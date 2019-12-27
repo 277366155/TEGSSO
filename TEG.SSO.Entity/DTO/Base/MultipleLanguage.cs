@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
-using TEG.SSO.Entity.Enum;
+﻿using TEG.SSO.Entity.Enum;
 
 namespace TEG.SSO.Entity.DTO
 {
@@ -29,12 +25,12 @@ namespace TEG.SSO.Entity.DTO
                     return this.local_Lang;
                 case Language.en_US:
                     return this.en_US;
-                case Language.zh_CN:
-                    if (string.IsNullOrWhiteSpace(zh_CN))
-                    {
-                        return this.en_US;
-                    }
-                    return this.zh_CN;
+                //case Language.zh_CN:
+                //    if (string.IsNullOrWhiteSpace(zh_CN))
+                //    {
+                //        return this.en_US;
+                //    }
+                //    return this.zh_CN;
             }
         }
 
@@ -42,13 +38,13 @@ namespace TEG.SSO.Entity.DTO
         /// 本地语言
         /// </summary>
         public string local_Lang { get; set; }
-        /// <summary>
-        /// 中文
-        /// </summary>
-        public string zh_CN { get; set; }
+        ///// <summary>
+        ///// 中文
+        ///// </summary>
+        //public string zh_CN { get; set; }
         /// <summary>
         /// 英语
         /// </summary>
-        public string en_US{get;set;}
+        public string en_US { get; set; }
     }
 }

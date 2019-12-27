@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -30,8 +31,9 @@ namespace TEG.SSO.Entity.DBModel
         [ForeignKey("ParentID")]
         public virtual Role Parent { get; set; }
         
+        [JsonIgnore]
         public virtual ICollection<Role> Children { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<RoleRight> RoleRights { get; set; }
     }
 }

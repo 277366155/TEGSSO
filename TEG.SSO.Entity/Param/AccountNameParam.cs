@@ -8,7 +8,7 @@ namespace TEG.SSO.Entity.Param
     /// <summary>
     /// 检查登录账号是否存在参数实体
     /// </summary>
-    public class AccountNameParam
+    public class AccountNameParam:RequestBase
     {
         /// <summary>
         /// 账号

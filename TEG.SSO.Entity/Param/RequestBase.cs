@@ -14,6 +14,7 @@ namespace TEG.SSO.Entity.Param
         [Required]
         [StringLength(64)]
         public string SysCode { get; set; }
+
         /// <summary>
         /// 客户端发起请求的ip
         /// </summary>

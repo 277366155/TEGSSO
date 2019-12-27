@@ -12,10 +12,11 @@ using TEG.SSO.Entity.DTO;
 using TEG.SSO.Entity.Enum;
 using TEG.SSO.Entity.Param;
 using TEG.Framework.Utility;
+using System.Linq.Expressions;
 
 namespace TEG.SSO.Service
 {
-    public class UserService : ServiceBase<Entity.DBModel.User>
+    public class UserService : ServiceBase<User>
     {
         public UserService(IServiceProvider svp) : base(svp)
         {
@@ -51,7 +52,8 @@ namespace TEG.SSO.Service
             }
             var user = await masterContext.Users.Where(a => a.AccountName == userLogin.LoginName && a.Password == userLogin.EncryptedPassword)
                                                                                 .Include(a => a.UserDeptRels)
-                                                                                .Include(a => a.UserRoleRels).FirstOrDefaultAsync();
+                                                                                .Include(a => a.UserRoleRels)
+                                                                                .ThenInclude(a=>a.Role).FirstOrDefaultAsync();
             if (user == null)
             {
                 throw new CustomException("IDOrPasswordError", "登录账号或密码错误");
@@ -78,11 +80,17 @@ namespace TEG.SSO.Service
                 throw new CustomException("SystemError", "系统信息有误");
             }
             //当前用户的角色列表
-            var roleList = user.UserRoleRels?.Select(a => masterContext.Roles.FirstOrDefault(r => r.ID == a.RoleID))?.ToList();
-            if (roleList == null || roleList.Count() == 0)
-            {
-                throw new CustomException("NoPermission", "账号无权限");
-            }
+
+            //缓存db数据10分钟。后面验证权限时使用
+            var roleList = TryToGetFromRedis(ConfigService.GetDBUserRoleRedisKey(user.AccountName,user.ID), Convert.ToInt32(BaseCore.AppSetting["CacheTime"]),
+                ()=> {
+                    return user.UserRoleRels.AsQueryable().Select(a => a.Role).ToList();
+                });
+            ////无角色，不影响登录。只是看不到任何页面
+            //if (roleList == null || roleList.Count() == 0)
+            //{
+            //    throw new CustomException("NoPermission", "账号无权限");
+            //}
 
             result.Data = SetUserInfo(user, roleList, appSystem, userLogin.Lang);
             if (user.IsNew)
@@ -90,14 +98,15 @@ namespace TEG.SSO.Service
                 user.IsNew = false;
             }
             //如果时间不足30天，每次登录延长90天
-            if (user.ValidTime < utcNow.AddDays(30))
+            if (user.ValidTime < utcNow.AddDays(Convert.ToInt32(BaseCore.AppSetting["AccountValidTime:MinValidTime"])))
             {
-                user.ValidTime = utcNow.AddDays(90);
+                user.ValidTime = utcNow.AddDays(Convert.ToInt32(BaseCore.AppSetting["AccountValidTime:ValidTime"]));
             }
             await masterContext.SaveChangesAsync();
 
             result.Msg = "登录成功。";
             result.IsSuccess = true;
+
             if (user.FirstChange)
             {
                 result.Code = "ChangeYourPassword";
@@ -122,7 +131,7 @@ namespace TEG.SSO.Service
         /// <param name="appSystem"></param>
         /// <param name="lang"></param>
         /// <returns></returns>
-        private UserInfoAndRoleRight SetUserInfo(Entity.DBModel.User user, List<Role> roleList, AppSystem appSystem, Language lang)
+        private UserInfoAndRoleRight SetUserInfo(User user, List<Role> roleList, AppSystem appSystem, Language lang)
         {
             //处理superAdmin的权限值
             Action<List<RoleMenu>> actSuper = null;
@@ -238,6 +247,19 @@ namespace TEG.SSO.Service
             var token = SSOHelper.GenerateToken(user.UserInfo.UserID.ToString(), user.UserInfo.AccountName, user.UserInfo.UserName, ip);
 
             int timespan = ConfigService.TokenOverTime;//分钟
+            #region 获取用户部门信息
+            var orgService = (OrganizationService)_serviceProvider.GetService(typeof(OrganizationService));
+            orgService.currentUser = new TokenUserInfo
+            {
+                AccountName = user.UserInfo.AccountName,
+                UserID = user.UserInfo.UserID,
+                UserName = user.UserInfo.UserName,
+                IP = ip,
+                Token = token
+            };
+            user.Token = token;
+            user.Dept = await orgService.GetCurrentUserDeptsAndParentsAsync();
+            #endregion
 
             #region  缓存token
             var tokenKey = ConfigService.GetTokenRedisKey(user.UserInfo.UserID.ToString(), user.UserInfo.AccountName, sys.SystemCode);
@@ -251,6 +273,7 @@ namespace TEG.SSO.Service
             //检查是否缓存成功
             var cacheResult = redisCache.Get(tokenKey).ToString() == token && redisCache.Get(userInfoKey).ToString() == user.ToJson();
 
+            //用户有旧token，要清除该token对应的userInfo信息
             if (!existTokenValue.IsNullOrWhiteSpace())
             {
                 var existUserInfoKey = ConfigService.GetUserInfoRedisKey(existTokenValue, sys.SystemCode);
@@ -264,7 +287,6 @@ namespace TEG.SSO.Service
                 }
             }
             #endregion 缓存token
-
             //DB记录token记录
             await masterContext.UserSessionLogs.AddAsync(new UserSessionLog
             {
@@ -311,7 +333,57 @@ namespace TEG.SSO.Service
                 sessionLog.ModifyTime = utcNow;
                 await masterContext.SaveChangesAsync();
             }
-            return new Result { Msg = "注销成功", IsSuccess = true };
+            return new SuccessResult { Msg = "注销成功" };
+        }
+
+        /// <summary>
+        /// 通过旧密码来修改密码
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<Result> ChangPasswordAsync(ChangePassword param)
+        {
+            /*
+             * 1，两次密码是否一致
+             * 2，验证原账号密码、未禁用
+             * 3，修改除密码之外的字段
+             * **/
+            if (param.NewPassword != param.ConfirmPassword)
+            {
+                throw new CustomException("PasswordsDiffer", "两次输入密码不一致");
+            }
+            var user = await masterDbSet.FirstOrDefaultAsync(a => !a.IsDisabled && a.Password == param.OldPassword && a.ID == currentUser.UserID);
+            var utcNow = DateTime.UtcNow;
+            user.Password = param.NewPassword;
+            user.ModifyTime = utcNow;
+            user.PasswordModifyTime = utcNow;
+            user.LastUpdateAccountName = currentUser.AccountName;
+            await masterContext.SaveChangesAsync();
+            return new SuccessResult { Msg = "修改成功" };
+        }
+
+        /// <summary>
+        /// 修改指定用户id的密码
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<Result> ChangePasswordByUserIDAsync(AdminChangePassword param)
+        {
+            /*
+             * 1，指定id用户是否存在
+             * 2，修改密码
+             * **/
+            var user = await masterDbSet.Where(a => a.ID == param.UserID).Include(a => a.UserRoleRels).FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                throw new CustomException("UserIDIsNotExist", "用户ID不存在");
+            }
+
+            user.Password = param.Password;
+            user.LastUpdateAccountName = currentUser.AccountName;
+            await masterContext.SaveChangesAsync();
+            return new SuccessResult { Msg = "修改成功" };
         }
 
         /// <summary>
@@ -320,21 +392,26 @@ namespace TEG.SSO.Service
         /// <returns></returns>
         public Result<UserInfoAndRoleRight> GetCurrentUserInfo(string sysCode)
         {
-            var userInfoKey = ConfigService.GetUserInfoRedisKey(currentUser.Token,sysCode);
+            var userInfoKey = ConfigService.GetUserInfoRedisKey(currentUser.Token, sysCode);
 
             return new SuccessResult<UserInfoAndRoleRight>() { Data = redisCache.Get<UserInfoAndRoleRight>(userInfoKey) };
         }
 
-        public async Task<Result<List<User>>> GetUserInfoAsync(UserIDList userIDList)
+        /// <summary>
+        ///根据userIdlist  获取用户信息列表
+        /// </summary>
+        /// <param name="userIDList"></param>
+        /// <returns></returns>
+        public async Task<Result<List<User>>> GetUserInfoAsync(RequestIDs userIDList)
         {
-            if (userIDList == null || userIDList.UserIDs.Count <= 0)
+            if (userIDList == null || userIDList.IDs.Count <= 0)
             {
                 throw new CustomException("InvalidArguments", "无效的参数");
             }
-            var list =await  GetListAsync(a => userIDList.UserIDs.Contains(a.ID), true);
-            list?.ForEach(a=>a.Password=string.Empty);
+            var list = await GetListAsync(a => userIDList.IDs.Contains(a.ID), true);
+            list?.ForEach(a => a.Password = string.Empty);
 
-            return new SuccessResult<List<User>> { Data= list};
+            return new SuccessResult<List<User>> { Data = list };
         }
 
         /// <summary>
@@ -347,7 +424,7 @@ namespace TEG.SSO.Service
             var result = new Result();
             if (userList == null)
             {
-                throw new CustomException( "InvalidArguments","无效的参数");
+                throw new CustomException("InvalidArguments", "无效的参数");
             }
             //用户名已存在
             var exist = masterDbSet.Any(a => userList.Users.Select(m => m.AccountName).Contains(a.AccountName));
@@ -356,13 +433,20 @@ namespace TEG.SSO.Service
                 //result.Msg = "已存在的账号";
                 //result.Code = "AccountIsExist";
                 //return result;
-                throw new CustomException("AccountIsExist","已存在的账号");
+                throw new CustomException("AccountIsExist", "已存在的账号");
             }
-            var users = Mapper.Map<List<User>>(userList.Users).ToArray();
-            var insertResult = await InsertManyAsync(users);
+            var users = Mapper.Map<List<User>>(userList.Users);
+            var accountValidTime = Convert.ToInt32(BaseCore.AppSetting["AccountValidTime:ValidTime"]);//配置中读取新建账号有效期，单位：天
+            var validTime = DateTime.UtcNow.AddDays(accountValidTime);
+            users.ForEach(a =>
+            {
+                a.LastUpdateAccountName = currentUser.AccountName;
+                a.ValidTime = validTime;
+            });
+            var insertResult = await InsertManyAsync(users.ToArray());
 
             result.IsSuccess = insertResult;
-            result.Msg = insertResult? null:"操作失败";
+            result.Msg = insertResult ? null : "操作失败";
             return result;
         }
 
@@ -378,13 +462,13 @@ namespace TEG.SSO.Service
                 throw new CustomException("InvalidArguments", "无效的参数");
             }
             var utcNow = DateTime.UtcNow;
-            foreach(var u in param.Users)
-            { 
-                var user=await masterDbSet.FirstOrDefaultAsync(a=>a.ID==u.ID);
+            foreach (var u in param.Users)
+            {
+                var user = await masterDbSet.FirstOrDefaultAsync(a => a.ID == u.ID);
                 //账号有修改，但有其他用户使用该账号，则全部不保存，退出
                 if (user.AccountName != u.AccountName && masterDbSet.Any(a => a.AccountName == u.AccountName))
                 {
-                    throw new CustomException("AccountNameIsExist", "账号已被占用");               
+                    throw new CustomException("AccountNameIsExist", "账号已被占用");
                 }
                 user.AccountName = u.AccountName;
                 user.Birthday = u.Birthday;
@@ -396,18 +480,19 @@ namespace TEG.SSO.Service
                 user.Mobile = u.Mobile;
                 user.ModifyTime = utcNow;
                 //密码有改动，密码更新时间要更新
-                if (user.Password!=u.Password)
+                if (user.Password != u.Password)
                 {
                     user.Password = u.Password;
                     user.PasswordModifyTime = utcNow;
-                }              
+                }
                 user.PasswordModifyPeriod = u.PasswordModifyPeriod;
                 user.QQ = u.QQ;
                 user.Telphone = u.Telphone;
                 user.UserName = u.UserName;
+                user.LastUpdateAccountName = currentUser.AccountName;
             }
-            var  updateResult =await masterContext.SaveChangesAsync() > 0;
-            return updateResult ? new SuccessResult() : new Result() { IsSuccess = false, Code="UpdateError", Msg="更新失败" };
+            var updateResult = await masterContext.SaveChangesAsync() > 0;
+            return updateResult ? new SuccessResult() : new Result() { IsSuccess = false, Code = "UpdateError", Msg = "更新失败" };
         }
 
         /// <summary>
@@ -415,13 +500,17 @@ namespace TEG.SSO.Service
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public async Task<Result> RetrievePasswordAsync(RetrievePassword param,string emailTemplate)
+        public async Task<Result> RetrievePasswordAsync(RetrievePassword param, string emailTemplate)
         {
             /*
              * 1，查找用户id，找到关联问题，验证答案
              * 2，发送验证码、记录验证码以及有效期
-             * 3，另起修改密码的接口，验证码失效机制
              * **/
+            var sysIsExist = await masterContext.AppSystems.AnyAsync(a => !a.IsDisabled && a.SystemCode == param.SysCode);
+            if (!sysIsExist)
+            {
+                throw new CustomException("SysCodeError", "错误的系统码");
+            }
             var user = await masterDbSet.Where(a => a.AccountName == param.AccountName).Include(a => a.UserSecurityQuestions)
                  .FirstOrDefaultAsync(a => a.UserSecurityQuestions.Any(q => q.QuestionID == param.QuestionID && q.Answer == param.Answer));
             if (user == null)
@@ -430,22 +519,22 @@ namespace TEG.SSO.Service
             }
             if (user.IsDisabled)
             {
-                throw new CustomException("CurrentUserIsDisabled","账户被禁用");
+                throw new CustomException("CurrentUserIsDisabled", "账户被禁用");
             }
-            //todo:参照原系统中GetEmailVerificationCode_V_1_2 方法。发送邮件
+
             if (user.Email.IsNullOrWhiteSpace())
             {
-                throw new CustomException("EmailIsEmpty","邮箱为空");
+                throw new CustomException("EmailIsEmpty", "邮箱为空");
             }
             var regex = new Regex(@"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*");
             if (!regex.IsMatch(user.Email))
             {
-                throw new CustomException("EmailError","邮箱信息错误");
+                throw new CustomException("EmailError", "邮箱信息错误");
             }
-            var vCode =new VerificationCode(user.AccountName, VerificationCodeType.ChangePasswordByCode);
+            var vCode = new VerificationCode(user.AccountName, VerificationCodeType.ChangePasswordByCode);
             var redisKey = ConfigService.GetVerificationCodeRedisKey(user.AccountName, VerificationCodeType.ChangePasswordByCode, param.SysCode);
-            var validTime =Convert.ToInt32( BaseCore.AppSetting["VerificationCodeValidTime"]);
-            redisCache.Set(redisKey,vCode, TimeSpan.FromMinutes(validTime));
+            var validTime = Convert.ToInt32(BaseCore.AppSetting["VerificationCodeValidTime"]);
+            redisCache.Set(redisKey, vCode, TimeSpan.FromMinutes(validTime));
 
             var subject = "";
             var sendContent = emailTemplate.Replace("{UserName}", user.UserName)
@@ -457,7 +546,7 @@ namespace TEG.SSO.Service
             }
             else
             {
-                if (param.Lang == Language.zh_CN)
+                if (param.Lang == Language.local_Lang)
                 {
                     subject = BaseCore.AppSetting["RetrievePasswordEmail:EmailSubject_zh"];
                     sendContent = sendContent.Replace("{Action}", BaseCore.AppSetting["RetrievePasswordEmail:ChangePassWordByCodeEmail_zh"]);
@@ -469,29 +558,148 @@ namespace TEG.SSO.Service
                 }
                 sendContent = sendContent.Replace("{Url}", "<a href='" + param.Url + "' target='_blank'>" + param.Url + "</a>");
             }
-            TEGEMailHelper.SendTE2UNoReplyEmail(user.Email, subject,sendContent);
-            //todo:log记录
-            return new SuccessResult ();
+            //发送邮件
+            TEGEMailHelper.SendTE2UNoReplyEmail(user.Email, subject, sendContent);
+            return new SuccessResult();
         }
 
+        /// <summary>
+        /// 通过邮件重置密码
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<Result> ResetPasswordAsync(ResetPassword param)
+        {
+            /*0，两次密码是否一致
+             * 1，accountName检测用户是否存在/系统码是否合法
+             * 2，验证码是否正确、remove验证码
+             * 3，修改密码
+             * 4，返回success
+             * **/
+            if (param.NewPassword != param.ConfirmPassword)
+            {
+                throw new CustomException("PasswordsDiffer", "两次输入密码不一致");
+            }
+            var user = await masterDbSet.FirstOrDefaultAsync(a => !a.IsDisabled && a.AccountName == param.AccountName);
+            if (user == null)
+            {
+                throw new CustomException("AccountError", "账号不存在");
+            }
+            var sysCodeIsExist = await masterContext.AppSystems.AnyAsync(a => !a.IsDisabled && a.SystemCode == param.SysCode);
+            if (!sysCodeIsExist)
+            {
+                throw new CustomException("SysCodeError", "错误的系统码");
+            }
+
+            var codeKey = ConfigService.GetVerificationCodeRedisKey(param.AccountName, VerificationCodeType.ChangePasswordByCode, param.SysCode);
+            var vCode = redisCache.Get<VerificationCode>(codeKey);
+            if (vCode == null || vCode.AccountName != param.AccountName || vCode.Type != VerificationCodeType.ChangePasswordByCode || vCode.Code != param.VerificationCode)
+            {
+                throw new CustomException("VerificationCodeError", "错误的验证码");
+            }
+            redisCache.Remove(codeKey);
+            if (redisCache.Exists(codeKey))
+            {
+                //未知错误记录异常日志
+                throw new Exception($"redis's key remove() error . Key:[{codeKey}]");
+            }
+            var utcNow = DateTime.UtcNow;
+            user.Password = param.NewPassword;
+            user.IsNew = false;
+            user.ModifyTime = utcNow;
+            user.PasswordModifyTime = utcNow;
+            user.LastUpdateAccountName = param.AccountName;
+            await masterContext.SaveChangesAsync();
+            return new SuccessResult();
+        }
         /// <summary>
         /// 禁用/启用指定用户
         /// </summary>
         /// <param name="userIdList">用户id</param>
         /// <param name="disable">是否要禁用</param>
         /// <returns></returns>
-        public async Task<Result> DisableOrEnableUserAsync(UserIDList userIdList,bool disable)
+        public async Task<Result> DisableOrEnableUserAsync(RequestIDs userIdList, bool disable)
         {
-            var users = masterDbSet.Where(a => userIdList.UserIDs.Contains(a.ID)).ToList();
+            var users = masterDbSet.Where(a => userIdList.IDs.Contains(a.ID)).ToList();
             if (users == null || users.Count <= 0)
             {
                 throw new CustomException("NoData", "未查到任何数据");
             }
-            users.ForEach(a => a.IsDisabled = disable);
+            users.ForEach(a =>
+            {
+                a.IsDisabled = disable;
+                a.LastUpdateAccountName = currentUser.AccountName;
+            });
             await masterContext.SaveChangesAsync();
             return new SuccessResult();
         }
 
-       
+        /// <summary>
+        /// 分页查询user信息
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Result<Page<User>> GetPage(GetUserPage param)
+        {
+            var dataIQueryable = GetIQueryable(a => true);
+            if (param.UserID.HasValue)
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.ID == param.UserID);
+            }
+            if (param.AccountName.IsNotNullOrWhiteSpace())
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.AccountName.Contains(param.AccountName));
+            }
+            if (param.UserName.IsNotNullOrWhiteSpace())
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.UserName.Contains(param.UserName));
+            }
+            if (param.Gender.HasValue)
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.Gender == param.Gender);
+            }
+            if (param.Email.IsNotNullOrWhiteSpace())
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.Email.Contains(param.Email));
+            }
+            if (param.Mobile.IsNotNullOrWhiteSpace())
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.Mobile.Contains(param.Mobile));
+            }
+            if (param.IsNew.HasValue)
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.IsNew == param.IsNew);
+            }
+            if (param.IsMemberShipPassword.HasValue)
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.IsMemberShipPassword == param.IsMemberShipPassword);
+            }
+            if (param.IsDisabled.HasValue)
+            {
+                dataIQueryable = dataIQueryable.Where(a => a.IsDisabled == param.IsDisabled);
+            }
+
+            var data = dataIQueryable.ToPage(param.PageIndex, param.PageSize);
+            return new SuccessResult<Page<User>> { Data = data };
+        }
+        /// <summary>
+        /// 分页获取数据//todo:MapToDTO()...
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="filter"></param>
+        /// <param name="sort"></param>
+        /// <param name="sortOption"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="fromMasterDb"></param>
+        /// <returns></returns>
+        public override Page<User> GetPage<TKey>(Expression<Func<User, bool>> filter = null, Expression<Func<User, TKey>> sort = null, SortOption sortOption = SortOption.ASC, int pageIndex = 0, int pageSize = 10, bool fromMasterDb = false)
+        {
+            var dataIQueryable = GetIQueryable(filter, sort, sortOption, fromMasterDb)
+                                                                .Include(a => a.UserDeptRels).ThenInclude(a => a.Dept)
+                                                                .Include(a => a.UserRoleRels).ThenInclude(a => a.Role)
+                                                                .Include(a => a.UserSecurityQuestions).ThenInclude(a => a.SecurityQuestion);
+            return dataIQueryable.ToPage(pageIndex, pageSize);
+        }
     }
 }

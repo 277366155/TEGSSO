@@ -10,6 +10,10 @@ namespace TEG.SSO.Entity.Enum
     public enum PermissionValue
     {
         /// <summary>
+        ///默认值，无权限
+        /// </summary>
+        None=0,
+        /// <summary>
         /// 可见的
         /// </summary>
         Visiable=1,

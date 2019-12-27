@@ -17,7 +17,15 @@ namespace TEG.SSO.Common
         {
             return string.IsNullOrWhiteSpace(str);
         }
+        public static bool IsNotNullOrEmpty(this string str)
+        {
+            return !string.IsNullOrEmpty(str);
+        }
 
+        public static bool IsNotNullOrWhiteSpace(this string str)
+        {
+            return !string.IsNullOrWhiteSpace(str);
+        }
         /// <summary>
         /// 将对象转为json字符串
         /// </summary>

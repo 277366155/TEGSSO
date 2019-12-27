@@ -25,6 +25,12 @@ namespace TEG.SSO.Entity.DBModel
         public DateTime ModifyTime { get; set; }
 
         /// <summary>
+        /// 最后更新人的账号
+        /// </summary>
+        [StringLength(64)]
+        public string LastUpdateAccountName { get; set; }
+
+        /// <summary>
         /// 并发行版本号
         /// </summary>
         [JsonIgnore]

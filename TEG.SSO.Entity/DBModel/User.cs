@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -28,6 +29,7 @@ namespace TEG.SSO.Entity.DBModel
         /// 密码
         /// </summary>
         [StringLength(256)]
+        [JsonIgnore]
         public string Password { get; set; }
         /// <summary>
         /// 性别
@@ -88,7 +90,9 @@ namespace TEG.SSO.Entity.DBModel
         public bool IsDisabled { get; set; }
 
         public virtual ICollection<UserDeptRel> UserDeptRels { get; set; }
+
         public virtual ICollection<UserRoleRel> UserRoleRels { get; set; }
+
         public virtual ICollection<UserSecurityQuestion> UserSecurityQuestions { get; set; }
     }
 }

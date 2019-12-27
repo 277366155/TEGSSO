@@ -29,7 +29,7 @@ namespace TEG.SSO.WebAPI.Filter
                 context.HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 context.Result = new JsonResult(new FailResult() { Code = "UnkownError", Msg = "服务器内部错误" });
                 //异步执行，不能影响业务流程
-                logService.ErrorLogAsync(context);
+             logService.ErrorLogAsync(context);
             }
         }
     }

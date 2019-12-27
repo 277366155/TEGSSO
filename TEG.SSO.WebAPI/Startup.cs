@@ -35,9 +35,13 @@ namespace TEG.SSO.WebAPI
             services.AddDbContext<LogContext>(option => option.UseSqlServer(BaseCore.Configuration.GetConnectionString("LogConn")), ServiceLifetime.Scoped);
             services.AddDbContext<BizMasterContext>(option => option.UseSqlServer(BaseCore.Configuration.GetConnectionString("MasterConn")), ServiceLifetime.Scoped);
             services.AddDbContext<BizReadOnlyContext>(option => option.UseSqlServer(BaseCore.Configuration.GetConnectionString("ReadOnlyConn")), ServiceLifetime.Scoped);
+            services.AddScoped<AppSystemService>();
             services.AddScoped<UserService>();
             services.AddScoped<LogService>();
             services.AddScoped<SecurityQuestionService>();
+            services.AddScoped<MenuService>();
+            services.AddScoped<AuthorizationObjectService>();
+            services.AddScoped<OrganizationService>();
             services.AddScoped<RedisCache>();
             services.AddScoped<UserInfoAndRoleRight>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

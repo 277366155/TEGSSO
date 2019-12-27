@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -34,12 +35,13 @@ namespace TEG.SSO.Entity.DBModel
         /// </summary>
         public PermissionValue PermissionValue { get; set; }
 
+        
         [ForeignKey("RoleID")]
         public virtual Role Role { get; set; }
-
+        [JsonIgnore]
         [ForeignKey("MenuID")]
         public virtual Menu Menu { get; set; }
-
+        [JsonIgnore]
         [ForeignKey("AuthorizationObjectID")]
         public virtual AuthorizationObject AuthorizationObject { get; set; }
     }

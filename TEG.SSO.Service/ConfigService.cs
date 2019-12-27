@@ -15,7 +15,7 @@ namespace TEG.SSO.Service
         {
             get
             {
-                return Convert.ToInt32(BaseCore.Configuration.GetSection("AppSetting:TokenOverTime").Value);
+                return Convert.ToInt32(BaseCore.AppSetting["TokenOverTime"]);
             }
         }
         /// <summary>
@@ -53,5 +53,34 @@ namespace TEG.SSO.Service
             return $"{systemCode}:VerificationCode:{type.ToString()}:{accountName}";
         }
 
+        /// <summary>
+        /// 缓存数据库中取出的数据
+        /// </summary>
+        /// <param name="accountName"></param>
+        /// <returns></returns>
+        public static string GetDBUserRoleRedisKey(string accountName,int userId)
+        {
+            return $"DBUserRoleCache:{userId}_{accountName}";
+        }
+        /// <summary>
+        /// 缓存用户在某系统中包括权限值的权限信息
+        /// </summary>
+        /// <param name="sysCode"></param>
+        /// <param name="accountName"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public static string GetDBUserRightRedisKey(string sysCode, string accountName, int userId)
+        {
+            return $"{sysCode}:UserRight:{userId}_{accountName}";
+        }
+
+        public static string GetDBMenuRedisKey(string sysCode)
+        {
+            return $"{sysCode}:AllMenuList";
+        }
+        public static string GetDBAuthObjRedisKey(string sysCode)
+        {
+            return $"{sysCode}:AllAuthObjList";
+        }
     }
 }

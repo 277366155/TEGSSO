@@ -13,7 +13,9 @@ namespace TEG.SSO.Entity.Param
         /// </summary>
         public List<UpdateUser> Users { get; set; }
     }
-
+    /// <summary>
+    /// 更新用户信息
+    /// </summary>
     public class UpdateUser : NewUser
     {
         /// <summary>

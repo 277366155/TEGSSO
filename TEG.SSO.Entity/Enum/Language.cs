@@ -10,12 +10,12 @@
         /// </summary>
         local_Lang = 0,
         /// <summary>
-        /// 美式英语
+        /// 英语
         /// </summary>
         en_US=1,
-        /// <summary>
-        /// 中文
-        /// </summary>
-        zh_CN=2
+        ///// <summary>
+        ///// 中文
+        ///// </summary>
+        //zh_CN=2
     }
 }

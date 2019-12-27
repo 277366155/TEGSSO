@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 using TEG.SSO.Common;
 using TEG.SSO.EFCoreContext;
 using TEG.SSO.Entity.DBModel;
+using TEG.SSO.Entity.DTO;
 
 namespace TEG.SSO.Service
 {
-   public  class LogService
+    public class LogService
     {
         private LogContext logContext;
         public LogService(IServiceProvider serviceProvider)
@@ -42,9 +43,26 @@ namespace TEG.SSO.Service
             catch (Exception ex)
             { }
         }
-        public static void OperationLog()
-        {
 
+        /// <summary>
+        /// 记录操作日志
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task OperationLogAsync(Operation param)
+        {
+            try
+            {
+                var entity = param.MapTo<OperationLog>();
+                var utcNow = DateTime.UtcNow;
+                entity.ModifyTime = utcNow;
+                entity.CreateTime = utcNow;
+
+                await logContext.OperationLogs.AddAsync(entity);
+                await logContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            { }
         }
         #endregion 日志记录方法
     }

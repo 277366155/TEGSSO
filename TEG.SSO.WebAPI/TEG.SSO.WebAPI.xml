@@ -23,9 +23,30 @@
             <param name="param"></param>
             <returns></returns>
         </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.ChangePasswordAsync(TEG.SSO.Entity.Param.ChangePassword)">
+            <summary>
+            当前用户通过旧密码修改自己密码
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.ChangePasswordByUserIdAsync(TEG.SSO.Entity.Param.AdminChangePassword)">
+            <summary>
+            管理员修改指定用户的密码
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.RetrievePasswordAsync(TEG.SSO.Entity.Param.RetrievePassword)">
             <summary>
-            找回密码,发送验证码。todo..
+            找回密码,发送验证码。
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.ResetPasswordAsync(TEG.SSO.Entity.Param.ResetPassword)">
+            <summary>
+            通过邮件重置密码
             </summary>
             <param name="param"></param>
             <returns></returns>
@@ -42,6 +63,12 @@
             获取指定用户的信息
             </summary>
             <param name="userIDList"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetUserByPage(TEG.SSO.Entity.Param.GetUserPage)">
+            <summary>
+            分页获取用户信息列表
+            </summary>
             <returns></returns>
         </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.CheckAccountIsExistAsync(TEG.SSO.Entity.Param.AccountNameParam)">
@@ -91,6 +118,115 @@
             当前用户信息
             </summary>
         </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.CheckPermissionController.Index(TEG.SSO.Entity.Param.CheckPermission)">
+            <summary>
+            校验当前用户在指定code中的权限值。todo:待测试。。
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetMenuPage(TEG.SSO.Entity.Param.GetMenuPage)">
+            <summary>
+            分页获取菜单信息列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetMenuByIDs">
+            <summary>
+            根据id获取指定菜单信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAllMenusTree">
+            <summary>
+            获取所有菜单树状信息（包含菜单下的数据和功能）
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.DeleteMenu">
+            <summary>
+            删除指定菜单. todo:用一个参数标识：有下级菜单存在时，是否同时删除下级菜单
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.AddMenu">
+            <summary>
+            新增菜单
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.UpdateMenu">
+            <summary>
+            更新指定菜单
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAuthObjectPage">
+            <summary>
+            分页获取数据功能项
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAuthObjectByIDs">
+            <summary>
+            获取指定数据功能项
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.DeleteAuthObject">
+            <summary>
+            删除指定数据功能项
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.AddAuthObject">
+            <summary>
+            新增数据功能项
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.UpdateAuthObject">
+            <summary>
+            更新数据功能项
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetDeptsAndChildrenByIDsAsync(TEG.SSO.Entity.Param.RequestIDs)">
+            <summary>
+            根据id获取部门和下级部门信息。 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetCurrentUserDeptsAsync(TEG.SSO.Entity.Param.RequestBase)">
+            <summary>
+            获取当前用户部门信息，查询至顶级节点
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetOrganizationByPage(TEG.SSO.Entity.DTO.DeptPage)">
+            <summary>
+            分页获取部门信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.AddDeptInfosAsync(TEG.SSO.Entity.Param.AddDepts)">
+            <summary>
+            新增部门信息list
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.DeleteDeptsAsync(TEG.SSO.Entity.Param.DeleteDepts)">
+            <summary>
+            删除指定部门信息，用参数区分：有下级部门的是否需要先删除下级部门
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.UpdateUserDeptRelAsync(TEG.SSO.Entity.Param.UpdateUserDeptRel)">
+             <summary>
+            更新用户部门信息，删除原有的信息之后新增
+             </summary>
+             <returns></returns>
+        </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetCurrentQuestionAsync(TEG.SSO.Entity.Param.PasswordRequest)">
             <summary>
             获取当前用户密保问题
@@ -99,7 +235,35 @@
         </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetAllSecurityQuestionAsync(TEG.SSO.Entity.Param.RequestBase)">
             <summary>
-            获取所有密保问题列表
+            获取密保问题列表
+            </summary>
+            <param name="param"></param>
+            <returns></returns>      
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.AddSecurityQuestionAsync(TEG.SSO.Entity.Param.AddNewQuestion)">
+            <summary>
+            增加新的密保问题选项
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetQuestionByIDsAsync(TEG.SSO.Entity.Param.RequestIDs)">
+            <summary>
+            查询指定密保问题选项
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.UpdateQuestionAsync(TEG.SSO.Entity.Param.UpdateQuestion)">
+            <summary>
+            更新密保问题
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.DeleteSecurityQuestionAsync(TEG.SSO.Entity.Param.RequestIDs)">
+            <summary>
+            删除密保问题选项
             </summary>
             <param name="param"></param>
             <returns></returns>
@@ -117,6 +281,74 @@
             </summary>
             <param name="param"></param>
             <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.#ctor(System.String,System.String,System.Boolean)">
+            <summary>
+            权限验证
+            </summary>
+            <param name="des">文本说明</param>
+            <param name="actionCode">当前action的编码</param>
+            <param name="verify">是否启用验证，默认启用</param>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.OnActionExecuted(Microsoft.AspNetCore.Mvc.Filters.ActionExecutedContext)">
+            <summary>
+            action执行后，记录日志
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext)">
+            <summary>
+            action执行前
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="T:TEG.SSO.WebAPI.Resource">
+            <summary>
+              一个强类型的资源类，用于查找本地化的字符串等。
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.WebAPI.Resource.ResourceManager">
+            <summary>
+              返回此类使用的缓存的 ResourceManager 实例。
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.WebAPI.Resource.Culture">
+            <summary>
+              重写当前线程的 CurrentUICulture 属性
+              重写当前线程的 CurrentUICulture 属性。
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.WebAPI.Resource.EmailVerificationCode_en_US">
+             <summary>
+               查找类似 &lt;!DOCTYPE html&gt;
+            &lt;html&gt;
+            &lt;head&gt;
+                &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
+                &lt;title&gt;&lt;/title&gt;
+                &lt;meta charset=&quot;utf-8&quot; /&gt;
+            &lt;/head&gt;
+            &lt;body&gt;
+                &lt;div id=&quot;qm_con_body&quot;&gt;
+                    &lt;div id=&quot;mailContentContainer&quot; class=&quot;qmbox qm_con_body_content qqmail_webmail_only&quot; style=&quot;&quot;&gt;
+                        &amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border: 1px solid #cdcdcd; width: 640px; margin:auto;font-size: 12px; color: #1E2731; line-height: 20px;&quot;&gt;
+                            &lt;tbo [字符串的其余部分被截断]&quot;; 的本地化字符串。
+             </summary>
+        </member>
+        <member name="P:TEG.SSO.WebAPI.Resource.EmailVerificationCode_zh_CN">
+             <summary>
+               查找类似 &lt;!DOCTYPE html&gt;
+            &lt;html&gt;
+            &lt;head&gt;
+                &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
+                &lt;title&gt;&lt;/title&gt;
+                &lt;meta charset=&quot;utf-8&quot; /&gt;
+            &lt;/head&gt;
+            &lt;body&gt;
+                &lt;div id=&quot;qm_con_body&quot;&gt;
+                    &lt;div id=&quot;mailContentContainer&quot; class=&quot;qmbox qm_con_body_content qqmail_webmail_only&quot; style=&quot;&quot;&gt;
+                        &amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border: 1px solid #cdcdcd; width: 640px; margin:auto;font-size: 12px; color: #1E2731; line-height: 20px;&quot;&gt;
+                            &lt;tbo [字符串的其余部分被截断]&quot;; 的本地化字符串。
+             </summary>
         </member>
     </members>
 </doc>

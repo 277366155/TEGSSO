@@ -17,24 +17,21 @@ namespace TEG.SSO.Entity.DBModel
         /// </summary>
         public int UserID { get; set; }
         /// <summary>
-        /// 用户姓名
+        /// 用户账号
         /// </summary>
         [StringLength(64)]
-        public string UserName { get; set; }
+        public string AccountName { get; set; }
         /// <summary>
         /// 生成的用户token
         /// </summary>
         [StringLength(256)]
         public string UserToken { get; set; }
+
         /// <summary>
-        /// 系统id
-        /// </summary>
-        public int SystemID { get; set; }
-        /// <summary>
-        /// 系统名
+        /// 系统code
         /// </summary>
         [StringLength(64)]
-        public string SystemName { get; set; }
+        public string SystemCode { get; set; }
         /// <summary>
         /// 系统主机
         /// </summary>

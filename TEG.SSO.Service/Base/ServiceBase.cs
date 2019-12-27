@@ -24,7 +24,7 @@ namespace TEG.SSO.Service
         protected LogContext logContext;
         protected HttpContext currentHttpContext;
         protected RedisCache redisCache;
-        protected TokenUserInfo currentUser;
+        internal TokenUserInfo currentUser;
         protected DbSet<T> masterDbSet;
         protected DbSet<T> readOnlyDbSet;
 
@@ -53,7 +53,6 @@ namespace TEG.SSO.Service
                 return null;
             }
             var author = currentHttpContext.Request.Headers["Authorization"];
-            //var sysCode = _httpContext.Request.Query["SysCode"];
             if (string.IsNullOrWhiteSpace(author) || !author.FirstOrDefault().Contains("Bearer") )//|| sysCode.ToString().IsNullOrWhiteSpace())
             {
                 return null;
@@ -73,13 +72,40 @@ namespace TEG.SSO.Service
             return tokenUserInfo;
         }
 
+        /// <summary>
+        ///尝试从redis中获取指定key的数据，如果不存在则执行func并缓存后返回
+        /// </summary>
+        /// <typeparam name="TD"></typeparam>
+        /// <param name="key">缓存key</param>
+        /// <param name="minutes">缓存时间</param>
+        /// <param name="func">db</param>
+        /// <returns></returns>
+        protected TD TryToGetFromRedis<TD>(string key, int minutes, Func<TD> func)
+        {
+            if (key.IsNullOrWhiteSpace())
+            {
+                return func();
+            }
+            var data = redisCache.Get<TD>(key);
+            if (data == null)
+            {
+                data = func();
+                //data为空时不缓存
+                if (data != null && minutes > 0)
+                {
+                    redisCache.Set(key, data, TimeSpan.FromMinutes(minutes));
+                }
+            }
+            return data;
+        }
+
         #region 主库中新增、删除、更新
         /// <summary>
         /// 插入单个数据
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<bool> InsertAsync(T model)
+        public virtual async Task<bool> InsertAsync(T model)
         {
             await masterDbSet.AddAsync(model);
             var result = await masterContext.SaveChangesAsync();
@@ -90,7 +116,7 @@ namespace TEG.SSO.Service
         /// 批量插入model
         /// </summary>
         /// <param name="models"></param>
-        public async Task<bool> InsertManyAsync(T[] models)
+        public virtual async Task<bool> InsertManyAsync(T[] models)
         {
             await masterDbSet.AddRangeAsync(models);
             return await  masterContext.SaveChangesAsync() > 0;
@@ -100,20 +126,20 @@ namespace TEG.SSO.Service
         /// 删除指定model
         /// </summary>
         /// <param name="model"></param>
-        public async Task<bool> DeleteAsync(T model)
+        public virtual async Task<bool> DeleteAsync(T model)
         {
             masterDbSet.Remove(model);
             return await masterContext.SaveChangesAsync() > 0;
         }
         /// <summary>
-        /// 删除符合指定条件的数据
+        /// 删除符合指定条件的数据.。有引用外键时删除报错
         /// </summary>
         /// <param name="expression">lambda表达式</param>
-        public async Task<bool> DeleteManyAsync(Expression<Func<T, bool>> expression)
+        public virtual async Task DeleteManyAsync(Expression<Func<T, bool>> expression)
         {
             var datas = await masterDbSet.Where(expression).ToArrayAsync();
             masterDbSet.RemoveRange(datas);
-            return await masterContext.SaveChangesAsync() > 0;
+            await masterContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -121,7 +147,7 @@ namespace TEG.SSO.Service
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateAsync(T model)
+        public virtual async Task<bool> UpdateAsync(T model)
         {
             var data = await masterDbSet.FirstOrDefaultAsync(a => a.ID == model.ID);
             //获取属性，并遍历赋值
@@ -144,7 +170,7 @@ namespace TEG.SSO.Service
         /// <param name="expression">筛选条件</param>
         /// <param name="model">目标数据</param>
         /// <returns></returns>
-        public async Task<bool> UpdateManyAsync(Expression<Func<T, bool>> expression, T model)
+        public virtual async Task<bool> UpdateManyAsync(Expression<Func<T, bool>> expression, T model)
         {
             var datas = await masterDbSet.Where(expression).ToArrayAsync();
 
@@ -174,19 +200,27 @@ namespace TEG.SSO.Service
         /// <param name="filter"></param>
         /// <param name="fromMasterDb"></param>
         /// <returns></returns>
-        public async Task<Result<bool>> IsExistAsync(Expression<Func<T, bool>> filter, bool fromMasterDb = false)
+        public virtual  Result<bool> IsExist(Expression<Func<T, bool>> filter, bool fromMasterDb = false)
         {
-            var result = await (fromMasterDb ? masterDbSet : readOnlyDbSet).AnyAsync(filter);
-            return new SuccessResult<bool>() { Data=result  };
+            return new SuccessResult<bool>() { Data =  CheckExist(filter, fromMasterDb) };
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="fromMasterDb"></param>
+        /// <returns></returns>
+        public  bool CheckExist(Expression<Func<T, bool>> filter, bool fromMasterDb = false)
+        {
+            return  (fromMasterDb ? masterDbSet : readOnlyDbSet).Any(filter);
+        }
         /// <summary>
         /// 按照指定条件和排序规则，取出第一行数据。默认查询从库，按照id正序排列
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="fromMasterDb">是否从主库查询</param>
         /// <returns></returns>
-        public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter,  bool fromMasterDb = false)
+        public virtual async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter,  bool fromMasterDb = false)
         {
             return await  GetFirstOrDefaultAsync<object>(filter, null, SortOption.ASC, fromMasterDb);
         }
@@ -200,7 +234,7 @@ namespace TEG.SSO.Service
         /// <param name="sortOption">正序asc，倒序desc</param>
         /// <param name="fromMasterDb">是否从主库查询</param>
         /// <returns></returns>
-        public async Task<T> GetFirstOrDefaultAsync<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> sort = null, SortOption sortOption = SortOption.ASC, bool fromMasterDb = false)
+        public virtual async Task<T> GetFirstOrDefaultAsync<TKey>(Expression<Func<T, bool>> filter, Expression<Func<T, TKey>> sort = null, SortOption sortOption = SortOption.ASC, bool fromMasterDb = false)
         {
             var data = GetIQueryable(filter, sort, sortOption, fromMasterDb);
             return await data.FirstOrDefaultAsync();
@@ -212,7 +246,7 @@ namespace TEG.SSO.Service
         /// <param name="filter"></param>
         /// <param name="fromMasterDb">是否从主库查询</param>
         /// <returns></returns>
-        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> filter, bool fromMasterDb = false)
+        public virtual async Task<List<T>> GetListAsync(Expression<Func<T, bool>> filter, bool fromMasterDb = false)
         {
             return await GetListAsync<object>(filter, null, SortOption.ASC, fromMasterDb);
         }
@@ -226,7 +260,7 @@ namespace TEG.SSO.Service
         /// <param name="sortOption">正序asc，倒序desc</param>
         /// <param name="fromMasterDb">是否从主库查询</param>
         /// <returns>List集合</returns>
-        public async Task<List<T>> GetListAsync<TKey>(Expression<Func<T, bool>> filter = null, Expression<Func<T, TKey>> sort = null, SortOption sortOption = SortOption.ASC, bool fromMasterDb = false)
+        public virtual async Task<List<T>> GetListAsync<TKey>(Expression<Func<T, bool>> filter = null, Expression<Func<T, TKey>> sort = null, SortOption sortOption = SortOption.ASC, bool fromMasterDb = false)
         {
             return await GetIQueryable(filter, sort, sortOption, fromMasterDb).ToListAsync();
         }
@@ -242,19 +276,26 @@ namespace TEG.SSO.Service
         /// <param name="pageSize">每页行数</param>
         /// <param name="fromMasterDb">是否从主库查询</param>
         /// <returns></returns>
-        public async Task<Page<T>> GetPageAsync<TKey>(Expression<Func<T, bool>> filter = null, Expression<Func<T, TKey>> sort = null, SortOption sortOption = SortOption.ASC, int pageIndex = 0, int pageSize = 10, bool fromMasterDb = false)
+        public virtual Page<T> GetPage<TKey>(Expression<Func<T, bool>> filter = null, Expression<Func<T, TKey>> sort = null, SortOption sortOption = SortOption.ASC, int pageIndex = 0, int pageSize = 10, bool fromMasterDb = false)
         {
             var dataIQueryable = GetIQueryable(filter, sort, sortOption, fromMasterDb);
 
-            return new Page<T>()
-            {
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                Total = dataIQueryable.Count(),
-                Data = await dataIQueryable.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync()
-            };
-        }      
+            return dataIQueryable.ToPage(pageIndex, pageSize);
+        }
 
+        protected IQueryable<T> GetIQueryable(Expression<Func<T, bool>> filter = null,  bool fromMasterDb = false)
+        {
+            IQueryable<T> iQueryable;
+            if (filter == null)
+            {
+                iQueryable = (fromMasterDb ? masterDbSet : readOnlyDbSet).Where(a => true);
+            }
+            else
+            {
+                iQueryable = (fromMasterDb ? masterDbSet : readOnlyDbSet).Where(filter);
+            }
+            return iQueryable;
+        }
         /// <summary>
         ///  按照指定条件和排序规则，查出IQueryable集合。默认查询从库，按照id正序排列
         /// </summary>
@@ -266,15 +307,7 @@ namespace TEG.SSO.Service
         /// <returns>IQueryable</returns>
         protected IQueryable<T> GetIQueryable<TKey>(Expression<Func<T, bool>> filter = null, Expression<Func<T, TKey>> sort = null, SortOption sortOption = SortOption.ASC, bool fromMasterDb = false)
         {
-            IQueryable<T> iQueryable;
-            if (filter == null)
-            {
-                iQueryable = (fromMasterDb ? masterDbSet : readOnlyDbSet).Where(a => true);
-            }
-            else
-            {
-                iQueryable = (fromMasterDb ? masterDbSet : readOnlyDbSet).Where(filter);
-            }
+            var iQueryable = GetIQueryable(filter, fromMasterDb);
             switch (sortOption)
             {
                 default:

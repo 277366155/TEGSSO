@@ -69,6 +69,11 @@
             最后更新时间
             </summary>
         </member>
+        <member name="P:TEG.SSO.Entity.DBModel.DBModelBase.LastUpdateAccountName">
+            <summary>
+            最后更新人的账号
+            </summary>
+        </member>
         <member name="P:TEG.SSO.Entity.DBModel.DBModelBase.RowVersion">
             <summary>
             并发行版本号
@@ -149,9 +154,9 @@
             用户id
             </summary>
         </member>
-        <member name="P:TEG.SSO.Entity.DBModel.OperationLog.UserName">
+        <member name="P:TEG.SSO.Entity.DBModel.OperationLog.AccountName">
             <summary>
-            用户姓名
+            用户账号
             </summary>
         </member>
         <member name="P:TEG.SSO.Entity.DBModel.OperationLog.UserToken">
@@ -159,14 +164,9 @@
             生成的用户token
             </summary>
         </member>
-        <member name="P:TEG.SSO.Entity.DBModel.OperationLog.SystemID">
+        <member name="P:TEG.SSO.Entity.DBModel.OperationLog.SystemCode">
             <summary>
-            系统id
-            </summary>
-        </member>
-        <member name="P:TEG.SSO.Entity.DBModel.OperationLog.SystemName">
-            <summary>
-            系统名
+            系统code
             </summary>
         </member>
         <member name="P:TEG.SSO.Entity.DBModel.OperationLog.AccessHost">
@@ -202,6 +202,16 @@
         <member name="P:TEG.SSO.Entity.DBModel.Organization.ParentID">
             <summary>
             父级id
+            </summary>        
+        </member>
+        <member name="P:TEG.SSO.Entity.DBModel.Organization.Parent">
+            <summary>
+            父级节点
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DBModel.Organization.Children">
+            <summary>
+            子节点
             </summary>
         </member>
         <member name="T:TEG.SSO.Entity.DBModel.Role">
@@ -262,7 +272,7 @@
         <member name="P:TEG.SSO.Entity.DBModel.SecurityQuestion.QuestionContent">
             <summary>
             问题内容
-            json格式支持多语言：{"zh_CN":"你妈妈的名字？","en_US":"What's your mother's name?"}
+            json格式支持多语言：{"local_Lang":"你妈妈的名字？","en_US":"What's your mother's name?"}
             </summary>
         </member>
         <member name="P:TEG.SSO.Entity.DBModel.SecurityQuestion.IsDisabled">
@@ -478,50 +488,9 @@
             本地语言
             </summary>
         </member>
-        <member name="P:TEG.SSO.Entity.DTO.MultipleLanguage.zh_CN">
-            <summary>
-            中文
-            </summary>
-        </member>
         <member name="P:TEG.SSO.Entity.DTO.MultipleLanguage.en_US">
             <summary>
             英语
-            </summary>
-        </member>
-        <member name="T:TEG.SSO.Entity.DTO.Page">
-            <summary>
-            分页查询对象
-            </summary>
-        </member>
-        <member name="P:TEG.SSO.Entity.DTO.Page.PageIndex">
-            <summary>
-            查询页码数，从0开始
-            </summary>
-        </member>
-        <member name="P:TEG.SSO.Entity.DTO.Page.PageSize">
-            <summary>
-            每一页行数
-            </summary>
-        </member>
-        <member name="P:TEG.SSO.Entity.DTO.Page.Total">
-            <summary>
-            数据总行数
-            </summary>
-        </member>
-        <member name="P:TEG.SSO.Entity.DTO.Page.PageCount">
-            <summary>
-            总页数
-            </summary>
-        </member>
-        <member name="T:TEG.SSO.Entity.DTO.Page`1">
-            <summary>
-            分页数据
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="P:TEG.SSO.Entity.DTO.Page`1.Data">
-            <summary>
-            当前页数据列表
             </summary>
         </member>
         <member name="T:TEG.SSO.Entity.DTO.Result">
@@ -576,6 +545,56 @@
             是否成功
             </summary>
         </member>
+        <member name="T:TEG.SSO.Entity.DTO.DeptInfo">
+            <summary>
+            部门信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.DeptInfo.DeptID">
+            <summary>
+            部门id
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.DeptInfo.DeptName">
+            <summary>
+            部门名称
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.DTO.DeptAndChildrenInfo">
+            <summary>
+            包含下级部门的部门信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.DeptAndChildrenInfo.Children">
+            <summary>
+            下级部门
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.DTO.DeptAndParentInfo">
+            <summary>
+            包含上级部门的部门信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.DeptAndParentInfo.Parent">
+            <summary>
+            上级部门
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.DTO.DeptPage">
+            <summary>
+            分页查询部门信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.DeptPage.OrgName">
+            <summary>
+            部门名称
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.DeptPage.ParentID">
+            <summary>
+            父级id
+            </summary>        
+        </member>
         <member name="T:TEG.SSO.Entity.DTO.MenuChildrenObject">
              <summary>
             页面中权限控制对象
@@ -599,6 +618,51 @@
         <member name="P:TEG.SSO.Entity.DTO.MenuChildrenObject.PermissionValue">
             <summary>
             权限值
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.DTO.Operation">
+            <summary>
+            操作实例
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.UserID">
+            <summary>
+            用户id
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.AccountName">
+            <summary>
+            登录账号
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.UserToken">
+            <summary>
+            token
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.SystemCode">
+            <summary>
+            系统编码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.ActionCode">
+            <summary>
+            请求接口编码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.AccessHost">
+            <summary>
+            请求端ip
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.Url">
+            <summary>
+            请求路由
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.Operation.Description">
+            <summary>
+            描述
             </summary>
         </member>
         <member name="T:TEG.SSO.Entity.DTO.QuestionInfo">
@@ -746,9 +810,29 @@
             登录账户基本信息
             </summary>
         </member>
+        <member name="P:TEG.SSO.Entity.DTO.UserInfoAndRoleRight.Dept">
+            <summary>
+            部门信息
+            </summary>
+        </member>
         <member name="P:TEG.SSO.Entity.DTO.UserInfoAndRoleRight.RoleMenus">
             <summary>
             登录账户权限信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.VerificationCode.AccountName">
+            <summary>
+            登录账号
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.VerificationCode.Code">
+            <summary>
+            验证码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.DTO.VerificationCode.Type">
+            <summary>
+            验证码类型
             </summary>
         </member>
         <member name="T:TEG.SSO.Entity.Enum.Gender">
@@ -783,17 +867,12 @@
         </member>
         <member name="F:TEG.SSO.Entity.Enum.Language.en_US">
             <summary>
-            美式英语
-            </summary>
-        </member>
-        <member name="F:TEG.SSO.Entity.Enum.Language.zh_CN">
-            <summary>
-            中文
+            英语
             </summary>
         </member>
         <member name="T:TEG.SSO.Entity.Enum.ObjectType">
             <summary>
-            权限设置对象的类型
+            权限设置对象的类型【注意，该枚举类型和RightType枚举类型定义值要一致】
             </summary>
         </member>
         <member name="F:TEG.SSO.Entity.Enum.ObjectType.Function">
@@ -810,6 +889,11 @@
             <summary>
             权限值
             </summary>
+        </member>
+        <member name="F:TEG.SSO.Entity.Enum.PermissionValue.None">
+             <summary>
+            默认值，无权限
+             </summary>
         </member>
         <member name="F:TEG.SSO.Entity.Enum.PermissionValue.Visiable">
             <summary>
@@ -876,6 +960,16 @@
             其他
             </summary>
         </member>
+        <member name="T:TEG.SSO.Entity.Enum.VerificationCodeType">
+            <summary>
+            验证码类型
+            </summary>
+        </member>
+        <member name="F:TEG.SSO.Entity.Enum.VerificationCodeType.ChangePasswordByCode">
+            <summary>
+            修改密码验证码
+            </summary>
+        </member>
         <member name="T:TEG.SSO.Entity.Param.AccountNameParam">
             <summary>
             检查登录账号是否存在参数实体
@@ -884,6 +978,201 @@
         <member name="P:TEG.SSO.Entity.Param.AccountNameParam.AccountName">
             <summary>
             账号
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.AddDepts">
+            <summary>
+            新增部门信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.AddDepts.Depts">
+            <summary>
+            部门信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.NewDept.ParentID">
+            <summary>
+            上级部门id
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.NewDept.DeptName">
+            <summary>
+            新增部门名称
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.AddNewQuestion">
+            <summary>
+            新增密保问题
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.AddNewQuestion.Content">
+            <summary>
+            问题内容
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.QuestionContent">
+            <summary>
+            问题内容
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.QuestionContent.local_Lang">
+            <summary>
+            本地语言版
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.QuestionContent.en_US">
+            <summary>
+            英文版
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.AdminChangePassword">
+            <summary>
+            管理员修改其他人密码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.AdminChangePassword.UserID">
+            <summary>
+            用户id
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.AdminChangePassword.Password">
+             <summary>
+            密码
+             </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.PageParam">
+            <summary>
+            分页查询参数
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.PageParam.PageIndex">
+            <summary>
+            页码数，从0开始
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.PageParam.PageSize">
+            <summary>
+            每页数据行数
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.ChangePassword">
+            <summary>
+            修改密码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.ChangePassword.OldPassword">
+            <summary>
+            原密码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.ChangePassword.NewPassword">
+            <summary>
+            新密码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.ChangePassword.ConfirmPassword">
+            <summary>
+            新密码确认
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.CheckPermission">
+            <summary>
+            权限校验参数
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.CheckPermission.Checks">
+            <summary>
+            待权限校验列表
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.CheckParam.Code">
+            <summary>
+            待校验的code
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.CheckParam.Type">
+            <summary>
+            code类型
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.DeleteDepts">
+            <summary>
+            删除部门信息
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.DeleteDepts.RemoveChildren">
+            <summary>
+            是否一起删除下级部门。若为false，则当前部门有下级部门存在时，不可删除
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.DeleteDepts.DeptIDs">
+            <summary>
+            部门id列表
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetMenuPage.SystemID">
+            <summary>
+            业务系统id。下拉列表选择。
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetMenuPage.MenuCode">
+            <summary>
+            菜单code
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetMenuPage.MenuName">
+            <summary>
+            菜单名称，json格式支持多语言：{"local_Lang":"系统设置","en_US":"System Setting"}
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetMenuPage.IsDisabled">
+            <summary>
+            是否禁用
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.UserID">
+            <summary>
+            用户id
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.AccountName">
+            <summary>
+            登录账号
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.UserName">
+            <summary>
+            用户名字
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.Gender">
+            <summary>
+            性别
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.Email">
+            <summary>
+            电子邮箱
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.Mobile">
+            <summary>
+            手机号
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.IsNew">
+            <summary>
+            是否是新用户（从未登录），默认为true
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.IsMemberShipPassword">
+            <summary>
+            密码是否为Membership创建
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.GetUserPage.IsDisabled">
+            <summary>
+            是否禁用
             </summary>
         </member>
         <member name="T:TEG.SSO.Entity.Param.NewUserList">
@@ -991,6 +1280,41 @@
             语言类型
             </summary>
         </member>
+        <member name="T:TEG.SSO.Entity.Param.RequestIDs">
+            <summary>
+            通过id请求数据
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.RequestIDs.IDs">
+             <summary>
+            id列表
+             </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.ResetPassword">
+            <summary>
+            通过邮件重置密码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.ResetPassword.AccountName">
+            <summary>
+            账户名
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.ResetPassword.VerificationCode">
+            <summary>
+            邮箱验证码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.ResetPassword.NewPassword">
+            <summary>
+            新密码
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.ResetPassword.ConfirmPassword">
+            <summary>
+            确认新密码
+            </summary>
+        </member>
         <member name="T:TEG.SSO.Entity.Param.ResetSecurityQuestion">
             <summary>
             重设安全问题参数
@@ -1026,6 +1350,11 @@
             答案
             </summary>
         </member>
+        <member name="P:TEG.SSO.Entity.Param.RetrievePassword.Url">
+            <summary>
+            邮件中可点击跳转的url
+            </summary>
+        </member>
         <member name="T:TEG.SSO.Entity.Param.SetSecurityQuestion">
             <summary>
             设置安全问题参数
@@ -1046,6 +1375,56 @@
             问题答案
             </summary>
         </member>
+        <member name="P:TEG.SSO.Entity.Param.UpdateDepts.Depts">
+            <summary>
+            部门列表
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.Dept.ID">
+            <summary>
+            部门id
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.UpdateQuestion">
+            <summary>
+            更新密保问题
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.UpdateQuestionContent.ID">
+            <summary>
+            id
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.UpdateQuestionContent.IsDisabled">
+            <summary>
+            是否禁用
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.UpdateUserDeptRel">
+            <summary>
+            用户-部门关系
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.UpdateUserDeptRel.Rels">
+            <summary>
+            用户-部门关系
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.UDRel">
+            <summary>
+            用户-部门关系
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.UDRel.UserID">
+            <summary>
+            用户id
+            </summary>
+        </member>
+        <member name="P:TEG.SSO.Entity.Param.UDRel.DeptID">
+            <summary>
+            部门id
+            </summary>
+        </member>
         <member name="T:TEG.SSO.Entity.Param.UpdateUsers">
             <summary>
             用户信息更新参数
@@ -1054,6 +1433,11 @@
         <member name="P:TEG.SSO.Entity.Param.UpdateUsers.Users">
             <summary>
             用户信息
+            </summary>
+        </member>
+        <member name="T:TEG.SSO.Entity.Param.UpdateUser">
+            <summary>
+            更新用户信息
             </summary>
         </member>
         <member name="P:TEG.SSO.Entity.Param.UpdateUser.ID">

@@ -28,6 +28,9 @@ namespace TEG.SSO.Entity.Param
         [StringLength(128)]
         public string Answer { get; set; }
 
+        /// <summary>
+        /// 邮件中可点击跳转的url
+        /// </summary>
         [StringLength(256)]
         public string Url { get; set; }
     }

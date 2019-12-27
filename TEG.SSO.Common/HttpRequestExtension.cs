@@ -8,10 +8,13 @@ namespace TEG.SSO.Common
 {
  public  static  class HttpRequestExtension
     {
-
+        /// <summary>
+        /// 获取请求参数
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public  static string GetRequestParam(this HttpRequest request)
         {
-
             // post 请求方式获取请求参数方式
             if (request.Method.ToLower().Equals("post"))
             {

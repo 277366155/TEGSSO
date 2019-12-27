@@ -22,6 +22,10 @@ namespace TEG.SSO.Entity.DTO
         /// </summary>
          public UserInfo UserInfo { get; set; }
         /// <summary>
+        /// 部门信息
+        /// </summary>
+        public List<DeptAndParentInfo> Dept { get; set; }
+        /// <summary>
         /// 登录账户权限信息
         /// </summary>
         public List<RoleMenu> RoleMenus { get; set; }
