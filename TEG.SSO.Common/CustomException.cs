@@ -16,7 +16,7 @@ namespace TEG.SSO.Common
         /// </summary>
         /// <param name="errorCode">错误码</param>
         /// <param name="errorMsg">错误信息</param>
-        public CustomException(string errorCode, string errorMsg)
+        public CustomException(string errorCode, string errorMsg="")
         {
             this.Info = new ExceptionInfo { Code= errorCode, Message=errorMsg };
         }

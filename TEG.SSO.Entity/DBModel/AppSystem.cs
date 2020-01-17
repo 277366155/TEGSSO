@@ -31,7 +31,7 @@ namespace TEG.SSO.Entity.DBModel
         /// 是否禁用
         /// </summary>
         public bool IsDisabled { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<Menu> Menus { get; set; }
     }
 }

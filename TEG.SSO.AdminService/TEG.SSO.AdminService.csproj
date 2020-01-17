@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TEG.SSO.Common\TEG.SSO.Common.csproj" />
+    <ProjectReference Include="..\TEG.SSO.Entity\TEG.SSO.Entity.csproj" />
+    <ProjectReference Include="..\TEG.SSO.LogDBContext\TEG.SSO.LogDBContext.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TEG.Framework.Security">
+      <HintPath>..\DLLLibrary\TEG.Framework.Security.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

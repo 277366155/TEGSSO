@@ -8,14 +8,9 @@ namespace TEG.SSO.Entity.Param
     /// <summary>
     /// 新增密保问题
     /// </summary>
-    public class AddNewQuestion:RequestBase
-    {
-        /// <summary>
-        /// 问题内容
-        /// </summary>
-        [Required]
-        public List<QuestionContent> Content { get; set; }
-    }
+    public class AddNewQuestion : RequestBase<List<QuestionContent>>
+    { }
+
     /// <summary>
     /// 问题内容
     /// </summary>

@@ -2,10 +2,12 @@
 
 namespace TEG.SSO.Entity.Param
 {
+    public class ResetPassword : RequestBase<ResetPasswordParam>
+    { }
     /// <summary>
     /// 通过邮件重置密码
     /// </summary>
-    public class ResetPassword:RequestBase
+    public class ResetPasswordParam
     {
         /// <summary>
         /// 账户名

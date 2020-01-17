@@ -5,17 +5,12 @@ using System.Text;
 using TEG.SSO.Entity.Enum;
 
 namespace TEG.SSO.Entity.Param
-{
-    /// <summary>
-    /// 新增用户参数
-    /// </summary>
-    public class NewUserList:RequestBase
-    {
-        /// <summary>
-        /// 用户信息集合
-        /// </summary>
-        public List<NewUser> Users { get; set; }
-    }
+{    /// <summary>
+     /// 新增用户参数
+     /// </summary>
+    public class NewUserList : RequestBase<List<NewUser>>
+    { }
+
     /// <summary>
     /// 用户参数
     /// </summary>

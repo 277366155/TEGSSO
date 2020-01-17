@@ -8,12 +8,8 @@ namespace TEG.SSO.Entity.Param
     /// <summary>
     /// 用户-部门关系
     /// </summary>
-    public class UpdateUserDeptRel:RequestBase
+    public class UpdateUserDeptRel:RequestBase<List<UDRel>>
     {
-        /// <summary>
-        /// 用户-部门关系
-        /// </summary>
-        public List<UDRel> Rels { get; set; }
     }
     /// <summary>
     /// 用户-部门关系

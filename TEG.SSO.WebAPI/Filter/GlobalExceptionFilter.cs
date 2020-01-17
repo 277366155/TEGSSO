@@ -1,19 +1,21 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using TEG.SSO.Common;
 using TEG.SSO.Entity.DTO;
+using TEG.SSO.LogDBContext;
 using TEG.SSO.Service;
 
 namespace TEG.SSO.WebAPI.Filter
 {
     public class GlobalExceptionFilter : IExceptionFilter
     {
-        private LogService logService;
+        private IServiceProvider _svp;
         public GlobalExceptionFilter(IServiceProvider svp)
         {
-            logService = (LogService)svp.GetService(typeof(LogService));
+            _svp = svp;
         }
         public void OnException(ExceptionContext context)
         {
@@ -28,8 +30,9 @@ namespace TEG.SSO.WebAPI.Filter
             {
                 context.HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 context.Result = new JsonResult(new FailResult() { Code = "UnkownError", Msg = "服务器内部错误" });
-                //异步执行，不能影响业务流程
-             logService.ErrorLogAsync(context);
+
+                var logService = _svp.GetService<LogService>();
+                logService.ErrorLog(context);
             }
         }
     }

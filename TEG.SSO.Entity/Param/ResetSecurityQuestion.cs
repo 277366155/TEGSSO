@@ -2,10 +2,12 @@
 
 namespace TEG.SSO.Entity.Param
 {
+    public class ResetSecurityQuestion : RequestBase<ResetSecurityQuestionParam>
+    { }
     /// <summary>
     /// 重设安全问题参数
     /// </summary>
-    public class ResetSecurityQuestion:SetSecurityQuestion
+    public class ResetSecurityQuestionParam: SetSecurityQuestionParam
     {
         /// <summary>
         /// 原问题id

@@ -12,7 +12,7 @@ namespace TEG.SSO.Entity.DBModel
     /// 用户信息
     /// </summary>
     [Table("User")]
-  public   class User:DBModelBase
+  public  class User:DBModelBase
     {
         /// <summary>
         /// 登录账号
@@ -89,10 +89,11 @@ namespace TEG.SSO.Entity.DBModel
         /// </summary>
         public bool IsDisabled { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<UserDeptRel> UserDeptRels { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<UserRoleRel> UserRoleRels { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<UserSecurityQuestion> UserSecurityQuestions { get; set; }
     }
 }

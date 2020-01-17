@@ -5,10 +5,12 @@ using System.Text;
 
 namespace TEG.SSO.Entity.Param
 {
+    public class SetSecurityQuestion : RequestBase<SetSecurityQuestionParam>
+    { }
     /// <summary>
     /// 设置安全问题参数
     /// </summary>
-    public class SetSecurityQuestion:RequestBase
+    public class SetSecurityQuestionParam
     {
         /// <summary>
         /// 密码密文

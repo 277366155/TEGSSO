@@ -62,7 +62,7 @@ namespace TEG.SSO.EFCoreContext.Migrations
                     b.Property<string>("LastUpdateAccountName")
                         .HasMaxLength(64);
 
-                    b.Property<int>("MenuId");
+                    b.Property<int?>("MenuId");
 
                     b.Property<DateTime>("ModifyTime");
 
@@ -195,6 +195,8 @@ namespace TEG.SSO.EFCoreContext.Migrations
 
                     b.Property<DateTime>("CreateTime");
 
+                    b.Property<bool>("IsMenu");
+
                     b.Property<string>("LastUpdateAccountName")
                         .HasMaxLength(64);
 
@@ -203,8 +205,6 @@ namespace TEG.SSO.EFCoreContext.Migrations
                     b.Property<DateTime>("ModifyTime");
 
                     b.Property<int>("PermissionValue");
-
-                    b.Property<int>("RightType");
 
                     b.Property<int>("RoleID");
 
@@ -447,8 +447,7 @@ namespace TEG.SSO.EFCoreContext.Migrations
                 {
                     b.HasOne("TEG.SSO.Entity.DBModel.Menu", "Menu")
                         .WithMany("AuthorizationObjects")
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("MenuId");
                 });
 
             modelBuilder.Entity("TEG.SSO.Entity.DBModel.Menu", b =>

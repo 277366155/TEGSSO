@@ -1,0 +1,23 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width" />
+    @RenderSection("Meta", false)
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" href="~/favicon.ico" type="image/ico">
+    <link href="~/css/bootstrap.min.css" rel="stylesheet" />
+    @RenderSection("Style", false)
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery/vue.min.js"></script>
+</head>
+<body>
+    @RenderBody()
+    @RenderSection("Script", false)
+</body>
+</html>

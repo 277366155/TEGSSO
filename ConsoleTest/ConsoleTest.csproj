@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TEG.SSO.Common\TEG.SSO.Common.csproj" />
     <ProjectReference Include="..\TEG.SSO.EFCoreContext\TEG.SSO.EFCoreContext.csproj" />
   </ItemGroup>

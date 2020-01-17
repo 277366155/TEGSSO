@@ -5,6 +5,12 @@
     /// </summary>
     public class FailResult:Result
     {
+        public FailResult()
+        { }
+        public FailResult(string msg)
+        {
+            this.Msg = msg;
+        }
         /// <summary>
         /// 是否成功
         /// </summary>

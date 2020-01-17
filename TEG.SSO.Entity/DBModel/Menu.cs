@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -38,13 +39,17 @@ namespace TEG.SSO.Entity.DBModel
         /// </summary>
         public bool IsDisabled { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<AuthorizationObject> AuthorizationObjects { get; set; }
+        [JsonIgnore]
         [ForeignKey("SystemID")]
         public virtual AppSystem AppSystem { get; set; }
+       
         [ForeignKey("ParentID")]
         public virtual Menu Parent{ get; set; }
+        [JsonIgnore]
         public virtual ICollection<Menu> Children { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<RoleRight> RoleRights { get; set; }
     }
 }

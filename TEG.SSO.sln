@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.902
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TEG.SSO.Entity", "TEG.SSO.Entity\TEG.SSO.Entity.csproj", "{088FFCAC-2A6D-4A4B-B92F-20BB0009476A}"
 EndProject
@@ -14,6 +14,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TEG.SSO.WebAPI", "TEG.SSO.WebAPI\TEG.SSO.WebAPI.csproj", "{E37A694E-13BE-4965-82F1-BC574EE91B8F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TEG.SSO.Service", "TEG.SSO.Service\TEG.SSO.Service.csproj", "{62CA5984-ACE4-4004-863D-4995A4EEE94C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibraryDebug", "ClassLibraryDebug\ClassLibraryDebug.csproj", "{F352A5F0-CC12-4C2C-B3D4-117D6F3BAD02}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TEG.SSO.AdminWeb", "TEG.SSO.AdminWeb\TEG.SSO.AdminWeb.csproj", "{6E00DBA3-2302-4580-8611-55F2605CCBB8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TEG.SSO.AdminService", "TEG.SSO.AdminService\TEG.SSO.AdminService.csproj", "{7C09FACB-0117-495E-B223-945D2F2D58B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TEG.SSO.LogDBContext", "TEG.SSO.LogDBContext\TEG.SSO.LogDBContext.csproj", "{EDD728D1-40CF-406C-B654-D253EB71F947}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +53,22 @@ Global
 		{62CA5984-ACE4-4004-863D-4995A4EEE94C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62CA5984-ACE4-4004-863D-4995A4EEE94C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62CA5984-ACE4-4004-863D-4995A4EEE94C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F352A5F0-CC12-4C2C-B3D4-117D6F3BAD02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F352A5F0-CC12-4C2C-B3D4-117D6F3BAD02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F352A5F0-CC12-4C2C-B3D4-117D6F3BAD02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F352A5F0-CC12-4C2C-B3D4-117D6F3BAD02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E00DBA3-2302-4580-8611-55F2605CCBB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E00DBA3-2302-4580-8611-55F2605CCBB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E00DBA3-2302-4580-8611-55F2605CCBB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E00DBA3-2302-4580-8611-55F2605CCBB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C09FACB-0117-495E-B223-945D2F2D58B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C09FACB-0117-495E-B223-945D2F2D58B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C09FACB-0117-495E-B223-945D2F2D58B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C09FACB-0117-495E-B223-945D2F2D58B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDD728D1-40CF-406C-B654-D253EB71F947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDD728D1-40CF-406C-B654-D253EB71F947}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDD728D1-40CF-406C-B654-D253EB71F947}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDD728D1-40CF-406C-B654-D253EB71F947}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

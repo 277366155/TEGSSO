@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TEG.SSO.Common;
 using TEG.SSO.Entity.DBModel;
@@ -30,7 +28,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetMenuPage")]
-        [CustomAuthorize("分页获取菜单信息列表", "GetMenuPage")]
+        [CustomAuthorize(Description = "分页获取菜单信息列表", ActionCode ="GetMenuPage")]
         public ActionResult<Result<Page<Menu>>> GetMenuPage(GetMenuPage param)
         {
             return _menuService.GetMenuPage(param);
@@ -41,54 +39,70 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetMenuByIDs")]
-        [CustomAuthorize("根据id获取指定菜单信息", "GetMenuByIDs")]
-        public async Task<ActionResult<Result<List<Menu>>>> GetMenuByIDsAsync(RequestIDs param)
+        [CustomAuthorize(Description = "根据id获取指定菜单信息",ActionCode = "GetMenuByIDs")]
+        public async Task<ActionResult<Result<List<Menu>>>> GetMenuByIDsAsync(RequestID param)
         {
-            var data =await  _menuService.GetListAsync(a=>param.IDs.Contains(a.ID));
-            return  new SuccessResult<List<Menu>> {  Data= data };
+            var data = await _menuService.GetListAsync(a => param.Data.IDs.Contains(a.ID));
+            data.ForEach(a => a.MenuName = a.MenuName.JsonToObj<MultipleLanguage>().GetContent(param.Lang));
+            return new SuccessResult<List<Menu>> { Data = data };
         }
+
         /// <summary>
-        /// 获取所有菜单树状信息（包含菜单下的数据和功能）
+        /// 获取指定系统下所有菜单树状信息（包含菜单下的数据和功能）//角色赋权限tree数据
         /// </summary>
         /// <returns></returns>
-        [HttpPost("GetAllMenusTree")]
-        [CustomAuthorize("获取所有菜单树状信息（包含菜单下的数据和功能）", "GetAllMenusTree")]
-        public ActionResult GetAllMenusTree()
+        [HttpPost("GetAllMenuTrees")]
+        [CustomAuthorize(Description = "获取所有菜单树状信息（包含菜单下的数据和功能）",ActionCode = "GetAllMenusTree")]
+        public ActionResult<Result<List<SystemMenuTrees>>> GetAllMenuTreesBySystemCode(SystemCode param)
         {
-            return null;
+            return _menuService.GetAllMenuTrees(param);
         }
+
         /// <summary>
-        /// 删除指定菜单. todo:用一个参数标识：有下级菜单存在时，是否同时删除下级菜单
+        /// 获取当前登录系统的所有菜单树信息
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        [HttpPost("GetCurrentSysMenuTrees")]
+        [CustomAuthorize(Description = "获取当前登录系统的所有菜单树信息（包含菜单下的数据和功能）",ActionCode = "GetCurrentSysMenuTrees")]
+        public ActionResult<Result<List<SystemMenuTrees>>> GetCurrentSysMenuTrees(RequestBase param)
+        {
+            var sysParam = param.MapTo<SystemCode>();
+            sysParam.Data.SysCodes = new List<string> ();
+            sysParam.Data.SysCodes.Add(param.SysCode);
+            return _menuService.GetAllMenuTrees(sysParam);
+        }
+
+        /// <summary>
+        /// 删除指定菜单.
         /// </summary>
         /// <returns></returns>
         [HttpPost("DeleteMenu")]
-        [CustomAuthorize("删除指定菜单", "DeleteMenu")]
-        public ActionResult DeleteMenu()
+        [CustomAuthorize(Description = "删除指定菜单",ActionCode = "DeleteMenu")]
+        public async Task<ActionResult<Result>> DeleteMenuAsync(DeleteTree param)
         {
-            return null;
+            return await _menuService.DeleteMenuAsync(param);
         }
         /// <summary>
         /// 新增菜单
         /// </summary>
         /// <returns></returns>
         [HttpPost("AddMenu")]
-        [CustomAuthorize("新增菜单", "AddMenu")]
-        public ActionResult AddMenu()
+        [CustomAuthorize(Description = "新增菜单", ActionCode ="AddMenu")]
+        public async Task<ActionResult<Result>> AddMenuAsync(AddMenu param)
         {
-            return null;
+            return await _menuService.AddMenuAsync(param);
         }
         /// <summary>
         /// 更新指定菜单
         /// </summary>
         /// <returns></returns>
         [HttpPost("UpdateMenu")]
-        [CustomAuthorize("更新指定菜单", "UpdateMenu")]
-        public ActionResult UpdateMenu()
+        [CustomAuthorize(Description = "更新指定菜单", ActionCode ="UpdateMenu")]
+        public async Task<ActionResult<Result>> UpdateMenuAsync(UpdateMenu param)
         {
-            return null;
+            return await _menuService.UpdateMenusAsync(param);
         }
-
-
         #endregion 菜单管理
 
         #region 菜单中数据、功能管理
@@ -97,50 +111,65 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetAuthObjectPage")]
-        [CustomAuthorize("分页获取数据功能项", "GetAuthObjectPage")]
-        public ActionResult GetAuthObjectPage()
+        [CustomAuthorize(Description = "分页获取数据功能项",ActionCode = "GetAuthObjectPage")]
+        public ActionResult<Result<Page<AuthorizationObject>>> GetAuthObjectPage(GetAuthObjPage param)
         {
-            return null;
+            return _authObjService.GetAuthObjPage(param);
         }
         /// <summary>
         /// 获取指定数据功能项
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetAuthObjectByIDs")]
-        [CustomAuthorize("获取指定数据功能项", "GetAuthObjectByIDs")]
-        public ActionResult GetAuthObjectByIDs()
+        [CustomAuthorize(Description = "获取指定数据功能项",ActionCode = "GetAuthObjectByIDs")]
+        public async Task<ActionResult<Result<List<AuthorizationObject>>>> GetAuthObjectByIDsAsync(RequestID param)
         {
-            return null;
+            var data = await _authObjService.GetListAsync(a => param.Data.IDs.Contains(a.ID));
+            data.ForEach(a => a.ObjectName = a.ObjectName.JsonToObj<MultipleLanguage>().GetContent(param.Lang));
+            return new SuccessResult<List<AuthorizationObject>> { Data = data };
         }
+        /// <summary>
+        /// 获取指定菜单下的数据功能项
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("GetAuthObjectByMenuIDs")]
+        [CustomAuthorize(Description = "获取指定菜单下的数据功能项",ActionCode = "GetAuthObjectByMenuIDs")]
+        public async Task<ActionResult<Result<List<AuthorizationObject>>>> GetAuthObjectByMenuIDsAsync(RequestID param)
+        {
+            var data = await _authObjService.GetListAsync(a => a.MenuId.HasValue && param.Data.IDs.Contains(a.MenuId.Value));
+            data.ForEach(a => a.ObjectName = a.ObjectName.JsonToObj<MultipleLanguage>().GetContent(param.Lang));
+            return new SuccessResult<List<AuthorizationObject>> { Data = data };
+        }
+
         /// <summary>
         /// 删除指定数据功能项
         /// </summary>
         /// <returns></returns>
         [HttpPost("DeleteAuthObject")]
-        [CustomAuthorize("删除指定数据功能项", "DeleteAuthObject")]
-        public ActionResult DeleteAuthObject()
+        [CustomAuthorize(Description = "删除指定数据功能项",ActionCode = "DeleteAuthObject")]
+        public async Task<ActionResult<Result>> DeleteAuthObjectAsync(RequestID param)
         {
-            return null;
+            return await  _authObjService.DeleteAuthObjectsAsync(param);
         }
         /// <summary>
         /// 新增数据功能项
         /// </summary>
         /// <returns></returns>
         [HttpPost("AddAuthObject")]
-        [CustomAuthorize("新增数据功能项", "AddAuthObject")]
-        public ActionResult AddAuthObject()
+        [CustomAuthorize(Description = "新增数据功能项", ActionCode ="AddAuthObject")]
+        public async Task<ActionResult<Result>> AddAuthObjectAsync(AddAuthObj param)
         {
-            return null;
+            return await _authObjService.AddAuthObjAsync(param);
         }
         /// <summary>
         /// 更新数据功能项
         /// </summary>
         /// <returns></returns>
-        [HttpPost("UpdateAuthObject")]
-        [CustomAuthorize("更新数据功能项", "UpdateAuthObject")]
-        public ActionResult UpdateAuthObject()
+        [HttpPost("UpdateAuthObjects")]
+        [CustomAuthorize(Description = "更新数据功能项", ActionCode ="UpdateAuthObjects")]
+        public async Task<ActionResult<Result>> UpdateAuthObjectsAsync(UpdateAuthObj param)
         {
-            return null;
+            return await _authObjService.UpdateAuthObjectsAsync(param);
         }
         #endregion 菜单中数据、功能管理
 

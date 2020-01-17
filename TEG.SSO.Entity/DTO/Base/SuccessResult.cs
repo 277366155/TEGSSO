@@ -21,6 +21,11 @@ namespace TEG.SSO.Entity.DTO
     /// <typeparam name="T"></typeparam>
     public class SuccessResult<T> : Result<T>
     {
+        public SuccessResult():base()
+        { }
+        public SuccessResult(T data) : base(data)
+        {
+        }
         /// <summary>
         /// 是否成功
         /// </summary>

@@ -3,10 +3,12 @@ using TEG.SSO.Entity.Enum;
 
 namespace TEG.SSO.Entity.Param
 {
+    public class UserLogin : RequestBase<UserLoginParam>
+    { }
     /// <summary>
     /// 用户登录接口参数
     /// </summary>
-    public class UserLogin : RequestBase
+    public class UserLoginParam
     {
         /// <summary>
         /// 登录名
@@ -15,11 +17,11 @@ namespace TEG.SSO.Entity.Param
         [StringLength(32)]
         public string LoginName { get; set; }
         /// <summary>
-        /// 加密之后的密码
+        /// 密码
         /// </summary>
         [Required]
         [StringLength(256)]
-        public string EncryptedPassword { get; set; }
+        public string Password { get; set; }
 
     }
 }

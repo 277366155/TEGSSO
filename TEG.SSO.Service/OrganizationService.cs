@@ -22,9 +22,9 @@ namespace TEG.SSO.Service
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public async Task<Result<List<DeptAndChildrenInfo>>> GetDeptInfoListByIDAsync(RequestIDs param)
+        public async Task<Result<List<DeptAndChildrenInfo>>> GetDeptInfoListByIDAsync(RequestID param)
         {
-            var data = await GetDeptsAndChildrenByIDsAsync(param.IDs);
+            var data = await GetDeptsAndChildrenByIDsAsync(param.Data.IDs);
             return new SuccessResult<List<DeptAndChildrenInfo>> { Data = data };
         }
 
@@ -65,7 +65,6 @@ namespace TEG.SSO.Service
                             s.Children.ForEach(m => act(m));
                         }
                     };
-
                     currentDept.Children.ForEach(m => act(m));
                 }
                 dataList.Add(currentDept);
@@ -73,6 +72,21 @@ namespace TEG.SSO.Service
             return dataList;
         }
 
+        /// <summary>
+        /// 获取指定部门信息
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<Result<List<Organization>>> GetDeptByIDsAsync(RequestID param)
+        {
+            if (param.Data.IDs.Any(a => !masterDbSet.Any(m => m.ID == a)))
+            {
+                throw new CustomException("IDError","错误的ID信息");
+            }
+            var data = await GetListAsync(a => param.Data.IDs.Contains(a.ID));
+            data.ForEach(a => a.Parent = null);
+            return new SuccessResult<List<Organization>>(data);
+        }
         /// <summary>
         /// 获取当前用户的部门信息（包含上级部门信息）
         /// </summary>
@@ -111,7 +125,7 @@ namespace TEG.SSO.Service
         /// <returns></returns>
         private async Task<DeptAndParentInfo> GetDeptAndParentByIdAsync(int id)
         {
-            var dept = await readOnlyDbSet.Where(m => m.ID == id).Include(m => m.Parent).FirstOrDefaultAsync();
+            var dept = await readOnlyDbSet.Where(m => m.ID == id).FirstOrDefaultAsync();
             if (dept == null)
             {
                 return null;
@@ -119,14 +133,14 @@ namespace TEG.SSO.Service
             var currentDept = dept.MapTo<DeptAndParentInfo>();
             //递归处理当前部门上级部门的上级部门
             Action<DeptAndParentInfo> act = null;
-            act = async s =>
+            act =  s =>
             {
                 if (s.Parent == null)
                 {
                     return;
                 }
 
-                var parent = await readOnlyDbSet.Where(m => m.ID == s.Parent.DeptID).Include(m => m.Parent).FirstOrDefaultAsync();
+                var parent =  readOnlyDbSet.Where(m => m.ID == s.Parent.DeptID).Include(m => m.Parent).FirstOrDefault();
 
                 if (parent.Parent != null)
                 {
@@ -143,24 +157,24 @@ namespace TEG.SSO.Service
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public Result<Page<Organization>> GetPage(DeptPage param)
+        public Result<Page<Organization>> GetPage(GetDeptPage param)
         {
             var data = GetIQueryable(a => true);
-            if (param.ID.HasValue)
+            if (param.Data.ID.HasValue)
             {
-                data = data.Where(a => a.ID == param.ID);
+                data = data.Where(a => a.ID == param.Data.ID);
             }
             //parentID=0表示查询根节点
-            if (param.ParentID.HasValue)
+            if (param.Data.ParentID.HasValue)
             {
-                data = data.Where(a => a.ParentID == (param.ParentID == 0 ? null : param.ParentID));
+                data = data.Where(a => a.ParentID == (param.Data.ParentID == 0 ? null : param.Data.ParentID));
             }
-            if (param.OrgName.IsNotNullOrWhiteSpace())
+            if (param.Data.OrgName.IsNotNullOrWhiteSpace())
             {
-                data = data.Where(a => a.OrgName.Contains(param.OrgName));
+                data = data.Where(a => a.OrgName.Contains(param.Data.OrgName));
             }
             data = data.Include(a => a.Parent);
-            return new SuccessResult<Page<Organization>> { Data = data.ToPage(param.PageIndex, param.PageSize) };
+            return new SuccessResult<Page<Organization>> { Data = data.ToPage(param.Data.PageIndex, param.Data.PageSize) };
         }
         #endregion 部门信息查询
 
@@ -169,22 +183,22 @@ namespace TEG.SSO.Service
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public async Task<Result> AddDeptAsync(AddDepts param)
+        public async Task<Result> AddDeptAsync(AddDept param)
         {
             //参数中有任何一个非空不存在的parentid，就不往下执行
-            var parentNotExist = param.Depts.Any(a => a.ParentID != null && !masterContext.Organizations.Any(m => m.ID == a.ParentID));
+            var parentNotExist = param.Data.Any(a => a.ParentID != null && !masterContext.Organizations.Any(m => m.ID == a.ParentID));
             if (parentNotExist)
             {
                 throw new CustomException("ParentIDError", "含有错误的上级部门ID");
             }
             //同级重名判断
-            var nameExist = param.Depts.Any(a => masterContext.Organizations.Any(m => m.ParentID == a.ParentID && m.OrgName == a.DeptName));
+            var nameExist = param.Data.Any(a => masterContext.Organizations.Any(m => m.ParentID == a.ParentID && m.OrgName == a.DeptName));
             if (nameExist)
             {
                 throw new CustomException("DeptNameIsExist", "同级部门名称已存在");
             }
 
-            var entities = param.Depts.MapTo<List<Organization>>();
+            var entities = param.Data.MapTo<List<Organization>>();
             entities.ForEach(a => a.LastUpdateAccountName = currentUser.AccountName);
             await masterContext.Organizations.AddRangeAsync(entities);
             await masterContext.SaveChangesAsync();
@@ -196,23 +210,23 @@ namespace TEG.SSO.Service
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public async Task<Result> DeleteDeptAsync(DeleteDepts param)
+        public async Task<Result> DeleteDeptAsync(DeleteTree param)
         {
-            var idNotExist = param.DeptIDs.Any(a => !masterContext.Organizations.Any(m => m.ID == a));
+            var idNotExist = param.Data.IDs.Any(a => !masterContext.Organizations.Any(m => m.ID == a));
             if (idNotExist)
             {
                 throw new CustomException("DeptIDError", "含有错误的部门ID");
             }
             //如果不一起删除下级部门，存在下级部门时不可删除
-            if (!param.RemoveChildren)
+            if (!param.Data.RemoveChildren)
             {
-                var childrenExist = masterContext.Organizations.Any(a => param.DeptIDs.Any(m => a.ParentID == m));
+                var childrenExist = masterContext.Organizations.Any(a => param.Data.IDs.Any(m => a.ParentID == m));
                 if (childrenExist)
                 {
                     throw new CustomException("ChildrenExist", "有下级部门，不可删除");
                 }
             }
-            var deleteEntities = masterDbSet.Where(a => param.DeptIDs.Contains(a.ID)).Include(a => a.Children).ToList();
+            var deleteEntities = masterDbSet.Where(a => param.Data.IDs.Contains(a.ID)).ToList();
             masterDbSet.RemoveRange(deleteEntities);
             await masterContext.SaveChangesAsync();
             return new SuccessResult { Msg = "删除成功" };
@@ -223,35 +237,38 @@ namespace TEG.SSO.Service
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public async Task<Result> UpdateDeptsAsync(UpdateDepts param)
+        public async Task<Result> UpdateDeptsAsync(UpdateDept param)
         {
-
+            if (param.Data.Any(a => !masterDbSet.Any(m => m.ID == a.ID)))
+            {
+                throw new CustomException("IDError", "错误的ID信息");
+            }
             //参数中同级重名判断
-            var nameParamExist = param.Depts.Any(a => param.Depts.Any(m => m.ID != a.ID && m.ParentID == a.ParentID && m.DeptName == a.DeptName));
+            var nameParamExist = param.Data.Any(a => param.Data.Any(m => m.ID != a.ID && m.ParentID == a.ParentID && m.DeptName == a.DeptName));
             if (nameParamExist)
             {
                 throw new CustomException("DeptNameIsExist", "同级部门名称重复");
             }
             //自己是自己的上级部门或者自己和下级部门互为上下级
-            var parentError = param.Depts.Any(a => a.ID == a.ParentID) || masterContext.Organizations.Any(a => param.Depts.Any(m => m.ParentID == a.ID && m.ID == a.ParentID));
+            var parentError = param.Data.Any(a => a.ID == a.ParentID) || masterContext.Organizations.Any(a => param.Data.Any(m => m.ParentID == a.ID && m.ID == a.ParentID));
             if (parentError)
             {
-                throw new CustomException("ParenError", "上级部门错误");
+                throw new CustomException("ParentError", "上级部门错误");
             }
             //db中同级重名判断
-            var nameExist = param.Depts.Any(a => masterContext.Organizations.Any(m => m.ID != a.ID && m.ParentID == a.ParentID && m.OrgName == a.DeptName));
+            var nameExist = param.Data.Any(a => masterContext.Organizations.Any(m => m.ID != a.ID && m.ParentID == a.ParentID && m.OrgName == a.DeptName));
             if (nameExist)
             {
                 throw new CustomException("DeptNameIsExist", "同级部门名称已存在");
             }
             //参数中有任何一个非空不存在的parentid，就不往下执行
-            var parentNotExist = param.Depts.Any(a => a.ParentID != null && !masterContext.Organizations.Any(m => m.ID == a.ParentID));
+            var parentNotExist = param.Data.Any(a => a.ParentID != null && !masterContext.Organizations.Any(m => m.ID == a.ParentID));
             if (parentNotExist)
             {
                 throw new CustomException("ParentIDError", "含有错误的上级部门ID");
             }
             var utcNow = DateTime.UtcNow;
-            foreach (var e in param.Depts)
+            foreach (var e in param.Data)
             {
                 var m = await masterDbSet.FirstOrDefaultAsync(a => a.ID == e.ID);
                 m.ModifyTime = utcNow;
@@ -275,23 +292,23 @@ namespace TEG.SSO.Service
              * 1，删除用户原有部门信息
              * 2，新增用户部门信息。注意检查是否有重复
              * **/
-            var userNotExist = param.Rels.Any(a => !masterContext.Users.Any(m => m.ID == a.UserID));
+            var userNotExist = param.Data.Any(a => !masterContext.Users.Any(m => m.ID == a.UserID));
             if (userNotExist)
             {
                 throw new CustomException("UserIDError", "用户不存在");
             }
 
-            var deptNotExit = param.Rels.Any(a => !masterContext.Organizations.Any(m => m.ID == a.DeptID));
+            var deptNotExit = param.Data.Any(a => !masterContext.Organizations.Any(m => m.ID == a.DeptID));
             if (deptNotExit)
             {
                 throw new CustomException("DeptIDError", "部门不存在");
             }
 
             //删除原用户-部门信息
-            var oldRels = masterContext.UserDeptRels.Where(a => param.Rels.Select(m => m.UserID).Contains(a.UserID)).ToList();
+            var oldRels = masterContext.UserDeptRels.Where(a => param.Data.Select(m => m.UserID).Contains(a.UserID)).ToList();
             masterContext.UserDeptRels.RemoveRange(oldRels);
 
-            var entities = param.Rels.MapTo<List<Entity.DBModel.UserDeptRel>>();
+            var entities = param.Data.MapTo<List<UserDeptRel>>();
             entities.ForEach(a => a.LastUpdateAccountName = currentUser.AccountName);
             await masterContext.UserDeptRels.AddRangeAsync(entities);
             await masterContext.SaveChangesAsync();

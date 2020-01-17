@@ -25,7 +25,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetCurrentQuestion")]
-        [CustomAuthorize("获取当前用户密保问题", "GetCurrentQuestion")]
+        [CustomAuthorize(Description = "获取当前用户密保问题",ActionCode = "GetCurrentQuestion")]
         public async Task<ActionResult<Result<QuestionInfo>>> GetCurrentQuestionAsync(PasswordRequest param)
         {
             return await _questionService.GetCurrentQuestionByUserAsync(param);
@@ -37,7 +37,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>      
         [HttpPost("GetQuestionList")]
-        [CustomAuthorize("获取密保问题列表", "GetQuestionList",false)]
+        [CustomAuthorize(Description = "获取密保问题列表",ActionCode = "GetQuestionList", Verify = false)]
         public async Task<ActionResult<Result<List<QuestionInfo>>>> GetAllSecurityQuestionAsync(RequestBase param)
         {
             return await _questionService.GetAllQuestionsAsync(param.Lang);
@@ -49,10 +49,10 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("AddSecurityQuestion")]
-        [CustomAuthorize("增加新的密保问题选项", "AddSecurityQuestion")]
+        [CustomAuthorize(Description = "增加新的密保问题选项",ActionCode = "AddSecurityQuestion")]
         public async Task<ActionResult<Result>> AddSecurityQuestionAsync(AddNewQuestion param)
         {
-            return await  _questionService.AddSecurityQuestionAsync(param);
+            return await _questionService.AddSecurityQuestionAsync(param);
         }
 
         /// <summary>
@@ -61,10 +61,10 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("GetQuestionByIDs")]
-        [CustomAuthorize("查询指定密保问题选项", "GetQuestionByIDs")]
-        public async Task<ActionResult<Result<List<SecurityQuestion>>>> GetQuestionByIDsAsync(RequestIDs param)
+        [CustomAuthorize(Description = "查询指定密保问题选项",ActionCode = "GetQuestionByIDs")]
+        public async Task<ActionResult<Result<List<SecurityQuestion>>>> GetQuestionByIDsAsync(RequestID param)
         {
-            var data= await _questionService.GetListAsync(a=>param.IDs.Contains(a.ID));
+            var data = await _questionService.GetListAsync(a => param.Data.IDs.Contains(a.ID));
             return new SuccessResult<List<SecurityQuestion>> { Data = data };
         }
         /// <summary>
@@ -73,10 +73,10 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("UpdateQuestion")]
-        [CustomAuthorize("更新密保问题选项", "UpdateQuestion")]
-        public  ActionResult<Result> UpdateQuestionAsync(UpdateQuestion param)
+        [CustomAuthorize(Description = "更新密保问题选项", ActionCode ="UpdateQuestion")]
+        public ActionResult<Result> UpdateQuestionAsync(UpdateQuestion param)
         {
-            return   _questionService.UpdateSecurityQuestionAsync(param);
+            return _questionService.UpdateSecurityQuestionAsync(param);
         }
 
         /// <summary>
@@ -85,11 +85,10 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("DeleteSecurityQuestion")]
-        [CustomAuthorize("删除密保问题选项", "DeleteSecurityQuestion")]
-        public async Task<ActionResult<Result>> DeleteSecurityQuestionAsync(RequestIDs param)
+        [CustomAuthorize(Description = "删除密保问题选项",ActionCode = "DeleteSecurityQuestion")]
+        public async Task<ActionResult<Result>> DeleteSecurityQuestionAsync(RequestID param)
         {
-            await  _questionService.DeleteManyAsync(a => param.IDs.Contains(a.ID));
-            return new  SuccessResult();
+            return await _questionService.DeleteSecurityQuestionAsync(param);
         }
         /// <summary>
         /// 设置密保问题
@@ -97,7 +96,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("SetQuestion")]
-        [CustomAuthorize("设置密保", "SetQuestion")]
+        [CustomAuthorize(Description = "设置密保",ActionCode = "SetQuestion")]
         public async Task<ActionResult<Result>> SetSecurityQuestionAsync(SetSecurityQuestion param)
         {
             return await _questionService.SetSecurityQuestionAsync(param);
@@ -109,7 +108,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("ResetQuestion")]
-        [CustomAuthorize("重置密保", "ResetQuestion")]
+        [CustomAuthorize(Description = "重置密保", ActionCode ="ResetQuestion")]
         public async Task<ActionResult<Result>> ResetSecurityQuestionAsync(ResetSecurityQuestion param)
         {
             return await _questionService.ResetSecurityQuestionAsync(param);

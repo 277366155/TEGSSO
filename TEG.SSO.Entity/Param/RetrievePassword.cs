@@ -5,10 +5,12 @@ using System.Text;
 
 namespace TEG.SSO.Entity.Param
 {
+    public class RetrievePassword : RequestBase<RetrievePasswordParam>
+    { }
     /// <summary>
     /// 找回密码参数
     /// </summary>
-   public class RetrievePassword:RequestBase
+    public class RetrievePasswordParam
     {
         /// <summary>
         /// 登录账号

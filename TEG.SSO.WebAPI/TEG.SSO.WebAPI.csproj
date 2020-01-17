@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>E:\Boo.Workspace\User Access Control(SSO)\SourceCode\TEG SSO 2.0\TEG.SSO.WebAPI\TEG.SSO.WebAPI.xml</DocumentationFile>
+    <DocumentationFile>.\TEG.SSO.WebAPI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +20,7 @@
     <ProjectReference Include="..\TEG.SSO.Common\TEG.SSO.Common.csproj" />
     <ProjectReference Include="..\TEG.SSO.EFCoreContext\TEG.SSO.EFCoreContext.csproj" />
     <ProjectReference Include="..\TEG.SSO.Entity\TEG.SSO.Entity.csproj" />
+    <ProjectReference Include="..\TEG.SSO.LogDBContext\TEG.SSO.LogDBContext.csproj" />
     <ProjectReference Include="..\TEG.SSO.Service\TEG.SSO.Service.csproj" />
   </ItemGroup>
 

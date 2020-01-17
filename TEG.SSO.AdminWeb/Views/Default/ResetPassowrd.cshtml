@@ -1,0 +1,141 @@
+﻿
+@{
+    ViewData["Title"] = "ResetPassowrd";
+    Layout = "~/Shared/_RootLayout.cshtml";
+}
+
+<main class="lyear-layout-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7 col-md-offset-1">
+                <div class="card">
+                    <div class="card-header"><h4>重置密码</h4></div>
+                    <div class="card-body">
+                        <div class="alert alert-success" role="alert">重置密码安全验证邮件已发送至 @ViewBag.Email ...</div>
+                        <form class="form-horizontal" action="/default/ResetPassword" method="post" id="ResetPasswordForm">
+                            <input type="hidden" value="@ViewBag.AccountName" id="AccountName" name="AccountName" />
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" for="accountName">账号</label>
+                                <div class="col-md-9 form-inline">
+                                    <input class="form-control" style=" width:250px" type="text" disabled="disabled" value="@ViewBag.AccountName">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" for="verificationCode">验证码</label>
+                                <div class="col-md-9 form-inline">
+                                    <input class="form-control" style=" width:250px" type="text" id="verificationCode" name="verificationCode" placeholder="请输入邮件中的验证码..">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" for="newPassword">新密码</label>
+                                <div class="col-md-9 form-inline">
+                                    <input class="form-control" style=" width:250px" type="password" id="newPassword" name="newPassword" placeholder="请输入新密码..">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" for="confirmPassword">新密码确认</label>
+                                <div class="col-md-9 form-inline">
+                                    <input class="form-control" style=" width:250px" type="password" id="confirmPassword" name="confirmPassword" placeholder="请再次输入新密码..">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-md-offset-3 ">
+                                    <label></label>
+                                    <button class="btn btn-primary " type="submit">提交</button>
+                                </div>
+                            </div>
+                        </form>
+                        <input type="hidden" id="hid" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section style{
+    <style>
+        #ResetPasswordForm label.error {
+            color: Red;
+            font-size: 13px;
+            margin-left: 5px;
+            padding-left: 16px;
+        }
+    </style>
+}
+@section script{
+    <script src="~/js/encode.js"></script>
+    <script src="~/js/jquery.bootstrap.wizard.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#ResetPasswordForm").validate({
+                rules: {
+                    accountName: {
+                        required: true,
+                        maxlength: 32
+                    },
+                    verificationCode: {
+                        required: true,
+                        rangelength:[6,6]
+                    },
+                    newPassword0: {
+                        required: true,
+                        rangelength: [6,32]
+                    },
+                    confirmPassword0: {
+                        required: true,
+                       rangelength: [6,32],
+                        equalTo:"#newPassword0"
+                    }
+                },
+                messages: {
+                    accountName: {
+                        required: "无账号信息",
+                        maxlength: "最大长度不能超过32"
+                    },
+                    verificationCode: {
+                        required: "请输入邮箱验证码",
+                        rangelength:"邮箱验证码为6位"
+                    },
+                    newPassword0: {
+                        required: "请输入新密码",
+                        rangelength: "密码长度应在6与32之间"
+                    },
+                    confirmPassword0: {
+                        required:  "请再次输入新密码",
+                        rangelength: "密码长度应在6与32之间",
+                        equalTo:"两次密码不一致"
+                    }
+                },
+                submitHandler: function (form) {
+                    encode($("#newPassword"));
+                    encode($("#confirmPassword"));
+
+                    $(form).ajaxSubmit(function (data) {
+                        if (data != undefined && data.isSuccess != undefined) {
+                            if (!data.isSuccess) {
+                                layer.alert(data.msg);
+                            }
+                            else {
+                                if (data.code != undefined && data.code != "") {
+                                    layer.alert(data.msg, function () {
+                                       location.href = "/";
+                                    });
+                                }
+                                else {
+                                    location.href = "/";
+                                }
+                            }
+                        }
+                    });
+                    return false;
+                }
+            });
+
+        });
+    </script>
+
+}
+
+

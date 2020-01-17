@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using TEG.SSO.Entity.DTO;
 using TEG.SSO.Entity.Enum;
@@ -23,12 +19,12 @@ namespace TEG.SSO.WebAPI.Controllers
         }
 
         /// <summary>
-        /// 校验当前用户在指定code中的权限值。todo:待测试。。
+        /// 校验当前用户在指定code中的权限值。todo:反复测试。。
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost]
-        [CustomAuthorize("权限校验", "CheckPermission_Index")]
+        [CustomAuthorize(false, Description = "权限校验",ActionCode = "CheckPermission_Index", CheckPermission=false)]
         public  ActionResult<Result<List<PermissionValue>>> Index(CheckPermission param)
         {
             return  _menuService.CheckPermission(param);

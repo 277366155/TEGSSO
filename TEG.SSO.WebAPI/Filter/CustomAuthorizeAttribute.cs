@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TEG.Framework.Security.SSO;
 using TEG.Framework.Standard.Cache;
@@ -13,31 +12,53 @@ using TEG.SSO.Common;
 using TEG.SSO.Entity.DTO;
 using TEG.SSO.Entity.Enum;
 using TEG.SSO.Entity.Param;
+using TEG.SSO.LogDBContext;
 using TEG.SSO.Service;
 using TEG.SSO.WebAPI.Controllers;
 
 namespace TEG.SSO.WebAPI.Filter
 {
+    /// <summary>
+    /// 权限过滤器
+    /// </summary>
     public class CustomAuthorizeAttribute : Attribute, IActionFilter
     {
-        string _actionCode;
-        string _description;
-        bool _verify;
+        /// <summary>
+        /// 功能项码
+        /// </summary>
+        public string ActionCode=null;
+        /// <summary>
+        /// 文本说明
+        /// </summary>
+        public string Description;
+        /// <summary>
+        /// 是否启用token验证
+        /// </summary>
+        public bool Verify=true;
+        /// <summary>
+        /// 是否进行actionCode权限验证
+        /// </summary>
+        public bool CheckPermission = true;
+        /// <summary>
+        /// 是否记录访问日志
+        /// </summary>
+        bool _saveLog;
+
         /// <summary>
         /// 权限验证
         /// </summary>
-        /// <param name="des">文本说明</param>
-        /// <param name="actionCode">当前action的编码</param>
-        /// <param name="verify">是否启用验证，默认启用</param>
-        public CustomAuthorizeAttribute(string des, string actionCode=null,bool verify=true)
+        /// <param name="saveLog">是否记录访问日志</param>
+        public CustomAuthorizeAttribute( bool saveLog = true)
         {
-            if (!actionCode.IsNullOrWhiteSpace())
-            {
-                _actionCode = actionCode;
-            }
+            //if (!actionCode.IsNullOrWhiteSpace())
+            //{
+            //    ActionCode = actionCode;
+            //}
 
-            _description = des;
-            _verify = verify;
+            //Description = des;
+            //Verify = verify;
+            //CheckPermission = checkPermission;
+            _saveLog = saveLog;
         }
         /// <summary>
         /// action执行后，记录日志
@@ -49,21 +70,22 @@ namespace TEG.SSO.WebAPI.Filter
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            if (_actionCode.IsNullOrWhiteSpace())
+            if (ActionCode.IsNullOrWhiteSpace())
             {
-                _actionCode = context.RouteData.ToString();
+                ActionCode = context.RouteData.ToString();
             }
 
-            var actionCode = _actionCode.IsNullOrWhiteSpace() ? context.ActionDescriptor.AttributeRouteInfo.Template.Replace("/", "_") : _actionCode;
-            var logService = (LogService)context.HttpContext.RequestServices.GetService(typeof(LogService));
+            var actionCode = ActionCode.IsNullOrWhiteSpace() ? context.ActionDescriptor.AttributeRouteInfo.Template.Replace("/", "_") : ActionCode;
+
             //所有接口都要以post方式请求
-            var param = context.HttpContext.Request.GetRequestParam().JsonToObj<RequestBase>();          
-            var log = new Operation {
+            var param = context.HttpContext.Request.GetRequestParam().JsonToObj<RequestBase>();
+            var log = new Operation
+            {
                 AccessHost = context.HttpContext.Connection.RemoteIpAddress.ToString(),
                 SystemCode = param.SysCode,
                 ActionCode = actionCode,
-                Description = param.SysCode + "/" + _description,
-                 Url= context.ActionDescriptor.AttributeRouteInfo.Template
+                Description = param.SysCode + "/" + Description,
+                Url = context.ActionDescriptor.AttributeRouteInfo.Template
             };
             var userinfo = ((BaseController)context.Controller).CurrentUser;
             if (userinfo != null)
@@ -72,8 +94,19 @@ namespace TEG.SSO.WebAPI.Filter
                 log.AccountName = userinfo.AccountName;
                 log.UserToken = userinfo.Token;
             }
-            //不可await,不能影响主流业务
-            logService.OperationLogAsync(log);
+            var svp = context.HttpContext.RequestServices;
+            if (_saveLog)
+            {
+                Task.Run(() =>
+                {
+                    using (var scop = svp.CreateScope())
+                    {
+                        var logService = scop.ServiceProvider.GetService<LogService>();
+                        //不可await,不能影响主流业务
+                        logService.OperationLogAsync(log);
+                    }
+                });
+            }
         }
 
         /// <summary>
@@ -86,21 +119,19 @@ namespace TEG.SSO.WebAPI.Filter
             var param = context.HttpContext.Request.GetRequestParam().JsonToObj<RequestBase>();
             if (param == null)
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Result = new JsonResult(new { msg = "非法请求" });
+                context.Result = new JsonResult(new FailResult { Code = "PermissionDenied", Msg = "非法请求" });
             }
-            var   appSystemService = (AppSystemService)context.HttpContext.RequestServices.GetService(typeof(AppSystemService));
-           var appCodeIsExist=   appSystemService.CheckExist(a=>a.SystemCode==param.SysCode);
+            var appSystemService = (AppSystemService)context.HttpContext.RequestServices.GetService(typeof(AppSystemService));
+            var appCodeIsExist = appSystemService.CheckExistFromCache(param.SysCode);
             if (!appCodeIsExist)
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Result = new JsonResult(new { msg = "非法请求" });
+                context.Result = new JsonResult(new FailResult { Code = "PermissionDenied", Msg = "非法请求" });
             }
             //todo:此处后续可以优化为使用RSA校验方式
             #endregion 校验sysCode
-            
-            //不进行权限验证
-            if (!_verify)
+
+            //不进行token验证
+            if (!Verify)
             {
                 return;
             }
@@ -109,8 +140,7 @@ namespace TEG.SSO.WebAPI.Filter
             //author为空或不以bearer开头
             if (string.IsNullOrWhiteSpace(author) || !author.FirstOrDefault().Contains("Bearer"))
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Result = new JsonResult(new { msg = "未知身份" });
+                context.Result = new JsonResult(new FailResult { Code = "NotLogin", Msg = "未知身份" });
                 return;
             }
             //提取token
@@ -120,27 +150,21 @@ namespace TEG.SSO.WebAPI.Filter
             //token无法解密，不再查询redis。 
             if (!SSOHelper.IsTokenValid(token, out list))
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Result = new JsonResult(new { msg = "非法token" });
+                context.Result = new JsonResult(new FailResult { Code = "NotLogin", Msg = "未知身份" });
                 return;
             }
-            //生成token 的时间加上token生效的时间
-            if (Convert.ToDateTime(list[4]).AddMinutes(Convert.ToDouble(BaseCore.AppSetting.GetSection("TokenOverTime").Value))<DateTime.Now)
-            {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Result = new JsonResult(new { msg = "token已过期" });
-                return;
-            }
+            var tokenOverTime = Convert.ToDouble(BaseCore.AppSetting.GetSection("TokenOverTime").Value);
+
             #endregion token格式校验
 
             //解析token获取用户信息
-            var tokenUserInfo = new TokenUserInfo { UserID=Convert.ToInt32(list[0]), AccountName=list[1], UserName=list[2], IP=list[3], Token= token };
+            var tokenUserInfo = new TokenUserInfo { UserID = Convert.ToInt32(list[0]), AccountName = list[1], UserName = list[2], IP = list[3], Token = token };
             ((BaseController)context.Controller).CurrentUser = tokenUserInfo;
 
             ////token生成时的ip与当前请求ip不一致
             //if (tokenUserInfo.IP != context.HttpContext.Connection.RemoteIpAddress.ToString())
             //{
-            //    context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //    
             //    context.Result = new JsonResult(new { msg = "非法请求" });
             //    return;
             //}
@@ -148,28 +172,39 @@ namespace TEG.SSO.WebAPI.Filter
             #region token有效期校验
             //redis中不存在，则已过期
             var redisCache = (RedisCache)context.HttpContext.RequestServices.GetService(typeof(RedisCache));
-           var userInfoKey= ConfigService.GetUserInfoRedisKey(token, param.SysCode);
+            var userInfoKey = ConfigService.GetUserInfoRedisKey(token, param.SysCode);
+
             var userIsExist = redisCache.Exists(userInfoKey);
-            
             if (!userIsExist)
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Result = new JsonResult(new { msg = "无权限" });
+                context.Result = new JsonResult(new FailResult { Code = "NotLogin", Msg = "请重新登录" });
                 return;
+            }
+
+            //缓存信息剩余时间小于10分钟，自动续期
+            var userInfoTTL = redisCache.redis.KeyTimeToLive(userInfoKey).GetValueOrDefault().TotalMinutes;
+            var tokenRedisKey = ConfigService.GetTokenRedisKey(tokenUserInfo.UserID.ToString(), tokenUserInfo.AccountName, param.SysCode);
+            var tokenTTL = redisCache.redis.KeyTimeToLive(tokenRedisKey).GetValueOrDefault().TotalMinutes;
+            if ((userInfoTTL > 0 && userInfoTTL < 10) || (tokenTTL > 0 && tokenTTL < 10))
+            {
+                redisCache.Set(tokenRedisKey, token, TimeSpan.FromMinutes(tokenOverTime));
+                redisCache.Set(userInfoKey, redisCache.Get<UserInfoAndRoleRight>(userInfoKey), TimeSpan.FromMinutes(tokenOverTime));
             }
             #endregion token有效期校验
 
             #region actionCode权限验证
-
+            if (!CheckPermission)
+            {
+                return;
+            }
             var menuService = (MenuService)context.HttpContext.RequestServices.GetService(typeof(MenuService));
-            var checkPermission = new CheckPermission() { Checks = new List<CheckParam>(), SysCode = param.SysCode, Lang = param.Lang };
-            checkPermission.Checks.Add(new CheckParam { Code = _actionCode, Type = RightType.Function });
+            var checkPermission = new CheckPermission() { Data = new List<CheckParam>(), SysCode = param.SysCode, Lang = param.Lang };
+            checkPermission.Data.Add(new CheckParam { Code = ActionCode, IsMenu = false });
             var checkResult = menuService.CheckPermission(checkPermission);
             //验证失败，或者当前用户在当前action上无执行权限
             if (!checkResult.IsSuccess || ((int)(checkResult.Data.FirstOrDefault() & PermissionValue.Executable) != (int)PermissionValue.Executable))
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Result = new JsonResult(new { msg = "无权限" });
+                context.Result = new JsonResult(new FailResult { Code = "PermissionDenied", Msg = "无权限" });
                 return;
             }
             #endregion action权限验证

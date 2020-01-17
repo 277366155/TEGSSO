@@ -18,6 +18,10 @@ namespace TEG.SSO.Entity.DTO
         /// </summary>
         public string SysCode { get; set; }
         /// <summary>
+        /// 是否是超级管理员
+        /// </summary>
+        public bool IsSuperAdmin { get; set; }
+        /// <summary>
         /// 登录账户基本信息
         /// </summary>
          public UserInfo UserInfo { get; set; }
@@ -28,6 +32,6 @@ namespace TEG.SSO.Entity.DTO
         /// <summary>
         /// 登录账户权限信息
         /// </summary>
-        public List<RoleMenu> RoleMenus { get; set; }
+        public List<AuthRight> RoleMenus { get; set; }
     }
 }

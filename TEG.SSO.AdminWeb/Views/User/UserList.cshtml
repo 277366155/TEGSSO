@@ -1,0 +1,134 @@
+﻿
+@{
+    ViewData["Title"] = "UserList";
+    Layout = "~/Shared/_AdminLayout.cshtml";
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-toolbar clearfix">
+                @*<form class="pull-right search-bar" method="get" action="#!" role="form">
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <input type="hidden" name="search_field" id="search-field" value="title">
+                                <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                    标题 <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li> <a tabindex="-1" href="javascript:void(0)" data-field="title">标题</a> </li>
+                                    <li> <a tabindex="-1" href="javascript:void(0)" data-field="cat_name">栏目</a> </li>
+                                </ul>
+                            </div>
+                            <input type="text" class="form-control" value="" name="keyword" placeholder="请输入名称">
+                        </div>
+                    </form>*@
+                <div class="toolbar-btn-action">
+                    <a class="btn btn-primary m-r-5" href="#!"><i class="mdi mdi-plus"></i> 新增</a>
+                    <a class="btn btn-success m-r-5" href="#!"><i class="mdi mdi-check"></i> 启用</a>
+                    <a class="btn btn-warning m-r-5" href="#!"><i class="mdi mdi-block-helper"></i> 禁用</a>
+                    <a class="btn btn-danger" href="#!"><i class="mdi mdi-window-close"></i> 删除</a>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="userList">
+                        <thead>
+                            <tr>
+                                <th>登录账号</th>
+                                <th>用户名</th>
+                                <th>性别</th>
+                                <th>手机号</th>
+                                <th>电子邮箱</th>
+                                <th>有效截止期</th>
+                                <th>账号创建时间</th>
+                                <th>最后操作人</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items">
+                                <td>{{item.accountName}}</td>
+                                <td>{{item.userName}}</td>
+                                <td>{{item.gender}}</td>
+                                <td>{{item.mobile}}</td>
+                                <td>{{item.email}}</td>
+                                <td>{{item.validTime}}</td>
+                                <td>{{item.createTime}}</td>
+                                <td>{{item.lastUpdateAccountName}}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-xs btn-default" href="#!" title="" data-toggle="tooltip" data-original-title="编辑"><i class="mdi mdi-pencil"></i></a>
+                                        <a class="btn btn-xs btn-default" href="#!" title="" data-toggle="tooltip" data-original-title="删除"><i class="mdi mdi-window-close"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pager"></div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@section script{
+    <script type="text/javascript">
+        var userList = new Vue({
+            el: "#userList",
+            data: {
+                param: {
+                    userID: null,
+                    accountName: "",
+                    userName: "",
+                    gender: null,
+                    email: "",
+                    mobile: "",
+                    pageIndex: 0,
+                    pageSize: 5
+                },
+                items: []
+            },
+            created: function () {
+                this.GetList();
+            },
+            methods: {
+                Search: function () {
+                    this.pageIndex = 0;
+                    this.GetList();
+                },
+                GetList: function () {
+                    var that = this;
+                    $.post("/user/GetUserList", this.param, function (data) {
+                        if (data.isSuccess) {
+                            that.items = data.data.list;
+                            layui.use('laypage', function () {
+                                var laypage = layui.laypage;
+                                //执行一个laypage实例
+                                laypage.render({
+                                    elem: 'pager'
+                                    , count: data.data.total
+                                    , limit: data.data.pageSize
+                                    , curr: data.data.pageIndex+1 || 1
+                                    , jump: function (obj, first) {
+                                        that.param.pageIndex = obj.curr;
+                                        if (!first) {
+                                            that.GetList();
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                        else {
+                            layer.alert(data.msg);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+
+}

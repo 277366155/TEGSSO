@@ -53,16 +53,23 @@
         </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetCurrentUserInfo(TEG.SSO.Entity.Param.RequestBase)">
             <summary>
-             获取当前用户信息
+             获取当前用户信息，以及菜单权限信息
             </summary>
             <param name="param"></param>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetUserInfoAsync(TEG.SSO.Entity.Param.UserIDList)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetUserEmailByAccountNameAsync(TEG.SSO.Entity.Param.RequestBase{System.String})">
             <summary>
-            获取指定用户的信息
+            获取指定账号的邮箱
             </summary>
-            <param name="userIDList"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetUserInfoByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            获取指定用户的信息(包括角色/部门信息)
+            </summary>
+            <param name="param"></param>
             <returns></returns>
         </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.GetUserByPage(TEG.SSO.Entity.Param.GetUserPage)">
@@ -78,7 +85,7 @@
             <param name="param"></param>
             <returns>是否存在用户名：true-存在，false-不存在</returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.UpdateUserAsync(TEG.SSO.Entity.Param.UpdateUsers)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.UpdateUserAsync(TEG.SSO.Entity.Param.UpdateUser)">
             <summary>
             更新用户信息
             </summary>
@@ -92,25 +99,79 @@
             <param name="param"></param>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.DisableUserAsync(TEG.SSO.Entity.Param.UserIDList)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.DisableUserAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             禁用指定用户
             </summary>
             <param name="param"></param>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.EnableUserAsync(TEG.SSO.Entity.Param.UserIDList)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.EnableUserAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             启用指定用户
             </summary>
             <param name="param"></param>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.DeleteUserAsync(TEG.SSO.Entity.Param.UserIDList)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.AccountController.DeleteUserAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             删除指定用户
             </summary>
             <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.GetAllAppSystem(TEG.SSO.Entity.Param.GetAppSystemPage)">
+            <summary>
+            分页获取系统信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.GetEnableAppSystemListAsync(TEG.SSO.Entity.Param.RequestBase)">
+            <summary>
+            获取未禁用的业务系统下拉列表数据
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.GetAppSystemByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            获取指定的业务系统信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.AddAppSystemAsync(TEG.SSO.Entity.Param.AddAppSystem)">
+            <summary>
+            新增业务系统信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.DeleteAppSystemAsync(TEG.SSO.Entity.Param.DeleteTree)">
+            <summary>
+            删除指定业务系统信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.DisableAppSystemAsync(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            禁用指定业务系统信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.EnableAppSystemAsync(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            启用指定业务系统信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.AppSyetemController.UpdateAppSystemAsync(TEG.SSO.Entity.Param.UpdateAppSystem)">
+            <summary>
+            更新业务系统信息
+            </summary>
             <returns></returns>
         </member>
         <member name="F:TEG.SSO.WebAPI.Controllers.BaseController.CurrentUser">
@@ -120,10 +181,35 @@
         </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.CheckPermissionController.Index(TEG.SSO.Entity.Param.CheckPermission)">
             <summary>
-            校验当前用户在指定code中的权限值。todo:待测试。。
+            校验当前用户在指定code中的权限值。todo:反复测试。。
             </summary>
             <param name="param"></param>
             <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.LogController.GetErrorLogPage(TEG.SSO.Entity.Param.PageParam)">
+            <summary>
+            分页查询错误日志
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.LogController.GetErrorLogInfo(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            根据id查询指定错误日志
+            </summary>
+            <param name="param"></param>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.LogController.GetOperationLogPage(TEG.SSO.Entity.Param.GetOperationLogPage)">
+            <summary>
+            分页查询操作日志
+            </summary>
+            <param name="param"></param>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.LogController.GetOperationLogInfo(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            根据id查询指定操作日志
+            </summary>
+            <param name="param"></param>
         </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetMenuPage(TEG.SSO.Entity.Param.GetMenuPage)">
             <summary>
@@ -131,69 +217,88 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetMenuByIDs">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetMenuByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             根据id获取指定菜单信息
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAllMenusTree">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAllMenuTreesBySystemCode(TEG.SSO.Entity.Param.SystemCode)">
             <summary>
-            获取所有菜单树状信息（包含菜单下的数据和功能）
+            获取指定系统下所有菜单树状信息（包含菜单下的数据和功能）//角色赋权限tree数据
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.DeleteMenu">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetCurrentSysMenuTrees(TEG.SSO.Entity.Param.RequestBase)">
             <summary>
-            删除指定菜单. todo:用一个参数标识：有下级菜单存在时，是否同时删除下级菜单
+            获取当前登录系统的所有菜单树信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.DeleteMenuAsync(TEG.SSO.Entity.Param.DeleteTree)">
+            <summary>
+            删除指定菜单.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.AddMenu">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.AddMenuAsync(TEG.SSO.Entity.Param.AddMenu)">
             <summary>
             新增菜单
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.UpdateMenu">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.UpdateMenuAsync(TEG.SSO.Entity.Param.UpdateMenu)">
             <summary>
             更新指定菜单
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAuthObjectPage">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAuthObjectPage(TEG.SSO.Entity.Param.GetAuthObjPage)">
             <summary>
             分页获取数据功能项
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAuthObjectByIDs">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAuthObjectByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             获取指定数据功能项
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.DeleteAuthObject">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.GetAuthObjectByMenuIDsAsync(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            获取指定菜单下的数据功能项
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.DeleteAuthObjectAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             删除指定数据功能项
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.AddAuthObject">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.AddAuthObjectAsync(TEG.SSO.Entity.Param.AddAuthObj)">
             <summary>
             新增数据功能项
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.UpdateAuthObject">
+        <member name="M:TEG.SSO.WebAPI.Controllers.MenuController.UpdateAuthObjectsAsync(TEG.SSO.Entity.Param.UpdateAuthObj)">
             <summary>
             更新数据功能项
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetDeptsAndChildrenByIDsAsync(TEG.SSO.Entity.Param.RequestIDs)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetDeptsAndChildrenByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             根据id获取部门和下级部门信息。 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetDeptsByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            根据id获取部门信息 
             </summary>
             <returns></returns>
         </member>
@@ -203,19 +308,26 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetOrganizationByPage(TEG.SSO.Entity.DTO.DeptPage)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.GetOrganizationByPage(TEG.SSO.Entity.DTO.GetDeptPage)">
             <summary>
             分页获取部门信息
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.AddDeptInfosAsync(TEG.SSO.Entity.Param.AddDepts)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.UpdateOrganizationsAsync(TEG.SSO.Entity.Param.UpdateDept)">
+            <summary>
+            更新部门信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.AddDeptInfosAsync(TEG.SSO.Entity.Param.AddDept)">
             <summary>
             新增部门信息list
             </summary>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.DeleteDeptsAsync(TEG.SSO.Entity.Param.DeleteDepts)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.OrganizationController.DeleteDeptsAsync(TEG.SSO.Entity.Param.DeleteTree)">
             <summary>
             删除指定部门信息，用参数区分：有下级部门的是否需要先删除下级部门
             </summary>
@@ -226,6 +338,39 @@
             更新用户部门信息，删除原有的信息之后新增
              </summary>
              <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.RoleController.GetRolePage(TEG.SSO.Entity.Param.GetRolePage)">
+            <summary>
+            分页获取角色信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.RoleController.GetRoleByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
+            <summary>
+            获取角色信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.RoleController.AddRolesAsync(TEG.SSO.Entity.Param.AddRole)">
+            <summary>
+            新增角色。角色名称不可重复
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.RoleController.UpdateRolesAsync(TEG.SSO.Entity.Param.UpdateRole)">
+            <summary>
+            更新角色信息。
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Controllers.RoleController.DeleteRolesAsync(TEG.SSO.Entity.Param.DeleteTree)">
+            <summary>
+            删除角色
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
         </member>
         <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetCurrentQuestionAsync(TEG.SSO.Entity.Param.PasswordRequest)">
             <summary>
@@ -247,7 +392,7 @@
             <param name="param"></param>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetQuestionByIDsAsync(TEG.SSO.Entity.Param.RequestIDs)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.GetQuestionByIDsAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             查询指定密保问题选项
             </summary>
@@ -261,7 +406,7 @@
             <param name="param"></param>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.DeleteSecurityQuestionAsync(TEG.SSO.Entity.Param.RequestIDs)">
+        <member name="M:TEG.SSO.WebAPI.Controllers.SecurityQuestionController.DeleteSecurityQuestionAsync(TEG.SSO.Entity.Param.RequestID)">
             <summary>
             删除密保问题选项
             </summary>
@@ -282,13 +427,41 @@
             <param name="param"></param>
             <returns></returns>
         </member>
-        <member name="M:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.#ctor(System.String,System.String,System.Boolean)">
+        <member name="T:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute">
+            <summary>
+            权限过滤器
+            </summary>
+        </member>
+        <member name="F:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.ActionCode">
+            <summary>
+            功能项码
+            </summary>
+        </member>
+        <member name="F:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.Description">
+            <summary>
+            文本说明
+            </summary>
+        </member>
+        <member name="F:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.Verify">
+            <summary>
+            是否启用token验证
+            </summary>
+        </member>
+        <member name="F:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.CheckPermission">
+            <summary>
+            是否进行actionCode权限验证
+            </summary>
+        </member>
+        <member name="F:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute._saveLog">
+            <summary>
+            是否记录访问日志
+            </summary>
+        </member>
+        <member name="M:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.#ctor(System.Boolean)">
             <summary>
             权限验证
             </summary>
-            <param name="des">文本说明</param>
-            <param name="actionCode">当前action的编码</param>
-            <param name="verify">是否启用验证，默认启用</param>
+            <param name="saveLog">是否记录访问日志</param>
         </member>
         <member name="M:TEG.SSO.WebAPI.Filter.CustomAuthorizeAttribute.OnActionExecuted(Microsoft.AspNetCore.Mvc.Filters.ActionExecutedContext)">
             <summary>

@@ -1,0 +1,127 @@
+﻿
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Shared/_RootLayout.cshtml";
+}
+
+@section style{
+
+    <link href="~/layui/css/modules/layer/default/layer.css" rel="stylesheet" />
+    <link href="~/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/css/style.min.css" rel="stylesheet" />
+    <link href="~/css/default.css" rel="stylesheet" />
+    <style type="text/css">
+        #LoginForm label.error
+        {
+            color:Red;
+            font-size:13px;
+            margin-left:5px;
+            padding-left:16px;
+        }
+    </style>
+}
+<div class="row lyear-wrapper">
+    <div class="lyear-login">
+        <div class="login-center">
+            <div class="login-header text-center">
+                <h3><a href="javascript:;">后台管理系统</a></h3>  @*<img alt="后台管理系统" src="~/images/logo-sidebar.png">*@
+            </div>
+            <form action="/Default/login" method="post" id="LoginForm">
+                <div class="form-group has-feedback feedback-left  form-inline">
+                    <span class="mdi mdi-account form-control-feedback" aria-hidden="true"></span>
+                    <input type="text"   style=" width:250px"  placeholder="Account Name" class="form-control" name="loginName" id="loginName" />
+
+                </div>
+                <div class="form-group has-feedback feedback-left  form-inline">
+                    <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+                    <input type="password"  style=" width:250px"  placeholder="Password" class="form-control"  name="password" id="password" />
+
+                </div>
+                @*<div class="form-group has-feedback feedback-left row">
+                <div class="col-xs-7">
+                    <input type="text" name="captcha" class="form-control" placeholder="Verification Code">
+                    <span class="mdi mdi-check-all form-control-feedback" aria-hidden="true"></span>
+                </div>
+                <div class="col-xs-5">
+                    <img src="~/images/captcha.png" class="pull-right" id="captcha" style="cursor: pointer;" onclick="this.src=this.src+'?d='+Math.random();" title="点击刷新" alt="captcha">
+                </div>
+            </div>*@
+            <div class="form-group has-feedback feedback-left  form-inline">
+                <button class="btn btn-primary" type="submit" id="submitBtn">立即登录</button>
+                <span class="m-b-0" style=" margin-left:30px"><a href="~/default/forgetpassword">忘记密码？</a> </span>
+            </div>
+            </form>
+            <footer class="col-sm-12 text-right">
+              
+            </footer>
+        </div>
+    </div>
+</div>
+
+@section script{  
+    <script src="~/js/encode.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#LoginForm").validate({
+                rules: {
+                    loginName: {
+                        required: true,
+                        maxlength: 32
+                    },
+                    password: {
+                        required: true,
+                        maxlength: 32
+                    }
+                },
+                messages: {
+                    loginName: {
+                        required: "输入账号",
+                        maxlength: "最大长度不能超过32"
+                    },
+                    password: {
+                        required: "输入密码",
+                        maxlength: "最大长度不能超过32"
+                    }
+                },
+                submitHandler: function (form) {
+                    encode($("#password"));
+                    $(form).ajaxSubmit(function (data) {
+                        if (data != undefined && data.isSuccess != undefined) {
+                            if (!data.isSuccess) {
+                                layer.alert(data.msg);
+                            }
+                            else {
+                                if (data.code != undefined && data.code != "") {
+                                    layer.alert(data.msg, function () {
+                                        location.href = "/home";
+                                    });
+                                }
+                                else {
+                                    location.href = "/home";
+                                }
+                            }
+                        }
+                    });
+                    return false;
+                }
+            });
+
+            var url = location.search;
+            if (parent !== window) {
+                try {
+                    parent.location.href = url;
+                } catch (e) {
+
+                }
+            }
+            if (!url)
+                return false;
+            if (url.indexOf("?msg=") != -1) {
+                var str = url.substr(5);
+                layer.alert(decodeURI(str), function () {
+                    location.href = "/";
+                });
+            }
+        });
+    </script>
+}

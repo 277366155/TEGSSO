@@ -17,11 +17,15 @@ namespace TEG.SSO.Entity.DBModel
         /// 角色id
         /// </summary>
         public int RoleID { get; set; }
-        /// <summary>
-        /// 权限设置类型：Menu时，取MenuID；Function和Data时，取AuthorizationObjectID
-        /// </summary>
-        public RightType RightType { get; set; }
+        ///// <summary>
+        ///// 权限设置类型：Menu时，取MenuID；Function和Data时，取AuthorizationObjectID
+        ///// </summary>
+        //public RightType RightType { get; set; }
 
+        /// <summary>
+        /// 是否是菜单类型的权限
+        /// </summary>
+        public bool IsMenu { get; set; }
         /// <summary>
         /// 权限菜单id
         /// </summary>
@@ -35,7 +39,7 @@ namespace TEG.SSO.Entity.DBModel
         /// </summary>
         public PermissionValue PermissionValue { get; set; }
 
-        
+
         [ForeignKey("RoleID")]
         public virtual Role Role { get; set; }
         [JsonIgnore]

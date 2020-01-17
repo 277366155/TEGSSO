@@ -28,7 +28,7 @@ namespace TEG.SSO.Entity.DBModel
         /// <summary>
         /// 所属菜单id
         /// </summary>
-        public int MenuId { get; set; }
+        public int? MenuId { get; set; }
 
         [ForeignKey("MenuId")]
         public virtual Menu Menu { get; set; }

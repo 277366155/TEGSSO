@@ -6,7 +6,9 @@ using TEG.SSO.Entity.Enum;
 
 namespace TEG.SSO.Entity.Param
 {
-   public  class GetUserPage:PageParam
+    public class GetUserPage : RequestBase<GetUserPager>
+    { }
+   public  class GetUserPager:Pager
     {
         /// <summary>
         /// 用户id

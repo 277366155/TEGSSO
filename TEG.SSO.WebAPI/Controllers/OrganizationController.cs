@@ -25,18 +25,28 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetDeptsAndChildren")]
-        [CustomAuthorize("获取部门信息","GetDepts")]
-        public async  Task<ActionResult<Result<List<DeptAndChildrenInfo>>>> GetDeptsAndChildrenByIDsAsync(RequestIDs param)
+        [CustomAuthorize(Description = "获取部门信息",ActionCode ="GetDepts")]
+        public async  Task<ActionResult<Result<List<DeptAndChildrenInfo>>>> GetDeptsAndChildrenByIDsAsync(RequestID param)
         {
             return await  _organizationService.GetDeptInfoListByIDAsync(param);
-        }        
+        }
+        /// <summary>
+        /// 根据id获取部门信息 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("GetDeptsByIDs")]
+        [CustomAuthorize(Description = "获取指定部门信息",ActionCode = "GetDeptsByIDs")]
+        public async Task<ActionResult<Result<List<Organization>>>> GetDeptsByIDsAsync(RequestID param)
+        {
+            return await _organizationService.GetDeptByIDsAsync(param);
+        }
 
         /// <summary>
         /// 获取当前用户部门信息，查询至顶级节点
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetCurrentDepts")]
-        [CustomAuthorize("获取当前用户的部门信息", "GetCurrentDepts")]
+        [CustomAuthorize(Description = "获取当前用户的部门信息",ActionCode = "GetCurrentDepts")]
         public async Task<ActionResult<Result<List<DeptAndParentInfo>>>> GetCurrentUserDeptsAsync(RequestBase param)
         {
             return  await _organizationService.GetCurrentDeptsAsync();
@@ -47,18 +57,29 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetOrganizationByPage")]
-        [CustomAuthorize("分页获取部门信息", "GetOrganizationByPage")]
-        public ActionResult<Result<Page<Organization>>> GetOrganizationByPage(DeptPage param)
+        [CustomAuthorize(Description = "分页获取部门信息", ActionCode ="GetOrganizationByPage")]
+        public ActionResult<Result<Page<Organization>>> GetOrganizationByPage(GetDeptPage param)
         {
             return _organizationService.GetPage(param);
+        }
+        /// <summary>
+        /// 更新部门信息
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        [HttpPost("UpdateDepts")]
+        [CustomAuthorize(Description = "更新部门信息", ActionCode ="UpdateDepts")]
+        public async Task<ActionResult<Result>> UpdateOrganizationsAsync(UpdateDept param)
+        {
+            return await _organizationService.UpdateDeptsAsync(param);
         }
         /// <summary>
         /// 新增部门信息list
         /// </summary>
         /// <returns></returns>
         [HttpPost("AddDeptInfos")]
-        [CustomAuthorize("新增部门信息", "AddDeptInfos")]
-        public async Task<ActionResult<Result>> AddDeptInfosAsync(AddDepts param)
+        [CustomAuthorize(Description = "新增部门信息",ActionCode = "AddDeptInfos")]
+        public async Task<ActionResult<Result>> AddDeptInfosAsync(AddDept param)
         {
             return await _organizationService.AddDeptAsync(param);
         }
@@ -68,8 +89,8 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("DeleteDepts")]
-        [CustomAuthorize("删除部门信息", "DeleteDepts")]
-        public async Task<ActionResult<Result>> DeleteDeptsAsync(DeleteDepts param)
+        [CustomAuthorize(Description = "删除部门信息", ActionCode ="DeleteDepts")]
+        public async Task<ActionResult<Result>> DeleteDeptsAsync(DeleteTree param)
         {
             return await  _organizationService.DeleteDeptAsync(param);
         }
@@ -79,7 +100,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("UpdateUserDeptRel")]
-        [CustomAuthorize("更新用户部门信息", "UpdateUserDeptRel")]
+        [CustomAuthorize(Description = "更新用户部门信息",ActionCode = "UpdateUserDeptRel")]
         public async Task<ActionResult<Result>> UpdateUserDeptRelAsync(UpdateUserDeptRel param)
         {
             return await  _organizationService.UpdateUserDeptRelAsync(param);

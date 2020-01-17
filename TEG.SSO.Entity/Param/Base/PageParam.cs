@@ -5,7 +5,13 @@ namespace TEG.SSO.Entity.Param
     /// <summary>
     /// 分页查询参数
     /// </summary>
-    public class PageParam:RequestBase
+    public class PageParam : RequestBase<Pager>
+    { }
+
+    /// <summary>
+    /// 分页查询参数
+    /// </summary>
+    public class Pager
     {
         /// <summary>
         /// 页码数，从0开始

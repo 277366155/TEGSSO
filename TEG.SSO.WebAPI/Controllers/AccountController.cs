@@ -34,8 +34,8 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="userLogin"></param>
         /// <returns></returns>
         [HttpPost("Login")]
-        [CustomAuthorize("登录", "Login", false)]
-        public async Task<ActionResult<Result<UserInfoAndRoleRight>>> LoginAsync(UserLogin userLogin)
+        [CustomAuthorize(Description ="登录",ActionCode = "Login", Verify =false)]
+        public async Task<ActionResult<Result>> LoginAsync(UserLogin userLogin)
         {
             return await _userService.LoginAsync(userLogin);
         }
@@ -46,7 +46,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("Logout")]
-        [CustomAuthorize("注销", "Logout")]
+        [CustomAuthorize(Description="注销", ActionCode="Logout")]
         public async Task<ActionResult<Result>> LogoutAsync(RequestBase param)
         {
             return await _userService.LogoutAsync(param.SysCode);
@@ -58,7 +58,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("ChangePassword")]
-        [CustomAuthorize( "修改自己密码", "ChangePassword")]
+        [CustomAuthorize(Description="修改自己密码", ActionCode="ChangePassword")]
         public async Task<ActionResult<Result>> ChangePasswordAsync(ChangePassword param)
         {
             return await _userService.ChangPasswordAsync(param);
@@ -70,7 +70,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("AdminChangePassword")]
-        [CustomAuthorize("管理员修改用户密码","AdminChangePassword")]
+        [CustomAuthorize(Description="管理员修改用户密码",ActionCode ="AdminChangePassword")]
         public async Task<ActionResult<Result>> ChangePasswordByUserIdAsync(AdminChangePassword param)
         {
             return await _userService.ChangePasswordByUserIDAsync(param);
@@ -81,7 +81,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("RetrievePassword")]
-        [CustomAuthorize( "邮件找回密码", "RetrievePassword", false)]
+        [CustomAuthorize(Description = "邮件找回密码", ActionCode ="RetrievePassword", Verify = false)]
         public async Task<ActionResult<Result>> RetrievePasswordAsync(RetrievePassword param)
         {
             var template = param.Lang == Language.local_Lang ? Resource.EmailVerificationCode_zh_CN : Resource.EmailVerificationCode_en_US;
@@ -93,7 +93,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("ResetPassword")]
-        [CustomAuthorize("邮件验证码重置密码", "ResetPassword", false)]
+        [CustomAuthorize(Description="邮件验证码重置密码", ActionCode = "ResetPassword",Verify = false)]
         public async Task<ActionResult<Result>> ResetPasswordAsync(ResetPassword param)
         {
             return await _userService.ResetPasswordAsync(param);
@@ -102,27 +102,38 @@ namespace TEG.SSO.WebAPI.Controllers
 
         #region 用户信息接口
         /// <summary>
-        ///  获取当前用户信息
+        ///  获取当前用户信息，以及菜单权限信息
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("GetCurrentUserInfo")]
-        [CustomAuthorize("获取当前用户信息", "GetCurrentUserInfo")]
+        [CustomAuthorize(Description = "获取当前用户信息，以及菜单权限信息", ActionCode ="GetCurrentUserInfo")]
         public ActionResult<Result<UserInfoAndRoleRight>> GetCurrentUserInfo(RequestBase param)
         {
             return _userService.GetCurrentUserInfo(param.SysCode);
         }
 
         /// <summary>
-        /// 获取指定用户的信息
+        /// 获取指定账号的邮箱
         /// </summary>
-        /// <param name="userIDList"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        [HttpPost("GetUserEmail")]
+        [CustomAuthorize(Description = "获取指定账号的邮箱", ActionCode = "GetUserEmail", Verify =false)]
+        public async Task<ActionResult<Result<string>>> GetUserEmailByAccountNameAsync(RequestBase<string> param)
+        {
+            return await  _userService.GetEmailByAccountNameAsync(param);
+        }
+        /// <summary>
+        /// 获取指定用户的信息(包括角色/部门信息)
+        /// </summary>
+        /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("GetUserInfos")]
-        [CustomAuthorize("获取指定UserId的用户信息", "GetUserInfos")]
-        public async Task<ActionResult<Result<List<User>>>> GetUserInfoAsync(RequestIDs userIDList)
+        [CustomAuthorize(Description = "获取指定UserId的用户信息",ActionCode = "GetUserInfos")]
+        public async Task<ActionResult<Result<List<UserAndRoleAndDeptInfo>>>> GetUserInfoByIDsAsync(RequestID param)
         {
-            return await _userService.GetUserInfoAsync(userIDList);
+            return await _userService.GetUserInfoByIDsAsync(param);
         }
 
         /// <summary>
@@ -130,7 +141,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("GetUserByPage")]
-        [CustomAuthorize("分页获取用户信息列表", "GetUserByPage")]
+        [CustomAuthorize(Description = "分页获取用户信息列表", ActionCode ="GetUserByPage")]
         public ActionResult<Result<Page<User>>> GetUserByPage(GetUserPage param)
         {
             var data = _userService.GetPage(param);
@@ -143,10 +154,10 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns>是否存在用户名：true-存在，false-不存在</returns>
         [HttpPost("CheckAccountIsExist")]
-        [CustomAuthorize("检测用户名是否被占用", "CheckAccountIsExist", false)]
+        [CustomAuthorize(Description = "检测用户名是否被占用", ActionCode ="CheckAccountIsExist",Verify = false)]
         public  ActionResult<Result<bool>> CheckAccountIsExistAsync(AccountNameParam param)
         {
-            return  _userService.IsExist(a => a.AccountName == param.AccountName);
+            return  _userService.IsExist(a => a.AccountName == param.Data.AccountName);
         }
 
         /// <summary>
@@ -155,8 +166,8 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("UpdateUser")]
-        [CustomAuthorize("更新用户信息", "UpdateUser")]
-        public async Task<ActionResult<Result>> UpdateUserAsync(UpdateUsers param)
+        [CustomAuthorize(Description = "更新用户信息", ActionCode ="UpdateUser")]
+        public async Task<ActionResult<Result>> UpdateUserAsync(UpdateUser param)
         {
            return  await  _userService.UpdateUsersAsync(param);
         }
@@ -167,7 +178,7 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("AddUser")]
-        [CustomAuthorize("新增用户", "AddUser")]
+        [CustomAuthorize(Description = "新增用户",ActionCode = "AddUser")]
         public async Task<ActionResult<Result>> AddUserAsync(NewUserList param)
         {
             return await _userService.AddUsersAsync(param);
@@ -179,8 +190,8 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("DisableUser")]
-        [CustomAuthorize("禁用用户", "DisableUser")]
-        public async Task<ActionResult<Result>> DisableUserAsync(RequestIDs param)
+        [CustomAuthorize(Description = "禁用用户",ActionCode = "DisableUser")]
+        public async Task<ActionResult<Result>> DisableUserAsync(RequestID param)
         {
             return await  _userService.DisableOrEnableUserAsync(param,true);
         }
@@ -191,8 +202,8 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("EnableUser")]
-        [CustomAuthorize("启用用户", "EnableUser")]
-        public async Task<ActionResult<Result>> EnableUserAsync(RequestIDs param)
+        [CustomAuthorize(Description = "启用用户",ActionCode = "EnableUser")]
+        public async Task<ActionResult<Result>> EnableUserAsync(RequestID param)
         {
             return await _userService.DisableOrEnableUserAsync(param,false);
         }
@@ -203,12 +214,11 @@ namespace TEG.SSO.WebAPI.Controllers
         /// <param name="param"></param>
         /// <returns></returns>
         [HttpPost("DeleteUser")]
-        [CustomAuthorize("删除用户", "DeleteUser")]
-        public async Task<ActionResult<Result>> DeleteUserAsync(RequestIDs param)
+        [CustomAuthorize(Description = "删除用户", ActionCode ="DeleteUser")]
+        public async Task<ActionResult<Result>> DeleteUserAsync(RequestID param)
         {
             //其外键关联数据会联合删除
-             await _userService.DeleteManyAsync(a=> param.IDs.Contains(a.ID));
-            return new SuccessResult();
+            return await _userService.DeleteUserAsync(param);
         }
         #endregion  用户信息接口
     }

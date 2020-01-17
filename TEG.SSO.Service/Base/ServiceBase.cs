@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using TEG.Framework.Security.SSO;
 using TEG.Framework.Standard.Cache;
@@ -13,6 +11,8 @@ using TEG.SSO.Common;
 using TEG.SSO.EFCoreContext;
 using TEG.SSO.Entity.DBModel;
 using TEG.SSO.Entity.DTO;
+using TEG.SSO.Entity.Param;
+using TEG.SSO.LogDBContext;
 
 namespace TEG.SSO.Service
 {
@@ -60,9 +60,8 @@ namespace TEG.SSO.Service
             var token = author.ToString().Substring("Bearer".Length).Trim();
             List<string> list;
             
-            //token校验不通过或者token过期
-            if (!SSOHelper.IsTokenValid(token, out list)||
-                Convert.ToDateTime(list[4]).AddMinutes(ConfigService.TokenOverTime) < DateTime.Now)
+            //token校验不通过
+            if (!SSOHelper.IsTokenValid(token, out list))
             {
                 return null;
             }
@@ -70,6 +69,16 @@ namespace TEG.SSO.Service
             var tokenUserInfo = new TokenUserInfo { UserID = Convert.ToInt32(list[0]), AccountName = list[1], UserName = list[2], IP = list[3],Token= token };
 
             return tokenUserInfo;
+        }
+        /// <summary>
+        /// 从redis中获取当前用户的具体信息
+        /// </summary>
+        /// <returns></returns>
+        protected UserInfoAndRoleRight GetCurrentUserInfoFromRedis()
+        {
+            var param = currentHttpContext.Request.GetRequestParam().JsonToObj<RequestBase>();
+            var key = ConfigService.GetUserInfoRedisKey(currentUser.Token, param.SysCode);
+            return  redisCache.Get<UserInfoAndRoleRight>(key);
         }
 
         /// <summary>
@@ -97,6 +106,20 @@ namespace TEG.SSO.Service
                 }
             }
             return data;
+        }
+
+        /// <summary>
+        ///尝试从redis中获取指定key的数据，如果不存在则执行func并缓存后返回
+        ///默认缓存时间取cacheTime配置
+        /// </summary>
+        /// <typeparam name="TD"></typeparam>
+        /// <param name="key">缓存key</param>
+        /// <param name="func">db</param>
+        /// <returns></returns>
+        protected TD TryToGetFromRedis<TD>(string key, Func<TD> func)
+        {
+            var cacheTime = ConfigService.CacheTime;
+            return TryToGetFromRedis(key,cacheTime,func);
         }
 
         #region 主库中新增、删除、更新

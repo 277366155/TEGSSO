@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using TEG.SSO.EFCoreContext;
+using TEG.SSO.Common;
+using TEG.SSO.Service;
 
 namespace TEG.SSO.WebAPI
 {
@@ -16,6 +9,7 @@ namespace TEG.SSO.WebAPI
     {
         public static void Main(string[] args)
         {
+            AutoMapperHelper.Config();
             CreateWebHostBuilder(args)
                 .Build()
                 .Run();
@@ -23,6 +17,7 @@ namespace TEG.SSO.WebAPI
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+            .UseConfiguration(BaseCore.Configuration)
                 .UseStartup<Startup>();
     }
 }

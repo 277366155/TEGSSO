@@ -9,13 +9,8 @@ namespace TEG.SSO.Entity.Param
     /// <summary>
     /// 权限校验参数
     /// </summary>
-    public class CheckPermission:RequestBase
-    {
-        /// <summary>
-        /// 待权限校验列表
-        /// </summary>
-        public List<CheckParam> Checks { get; set; }
-    }
+    public class CheckPermission : RequestBase<List<CheckParam>>
+    { }
 
     public class CheckParam
     {
@@ -27,9 +22,9 @@ namespace TEG.SSO.Entity.Param
         public string Code { get; set; }
 
         /// <summary>
-        /// code类型
+        /// code是否是菜单
         /// </summary>
         [Required]
-        public RightType Type { get; set; }
+        public bool IsMenu { get; set; }
     }
 }

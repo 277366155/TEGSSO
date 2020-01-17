@@ -14,6 +14,10 @@ namespace TEG.SSO.Entity.DTO
         /// <returns></returns>
         public string GetContent(Language lang)
         {
+            if (this.en_US == null)
+            {
+                this.en_US = string.Empty;
+            }
             switch (lang)
             {
                 default:

@@ -3,7 +3,10 @@ using TEG.SSO.Entity.Enum;
 
 namespace TEG.SSO.Entity.Param
 {
-    public   class PasswordRequest:RequestBase
+    public class PasswordRequest : RequestBase<PasswordParam>
+    { }
+
+    public   class PasswordParam
     {
         /// <summary>
         /// 密码

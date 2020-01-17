@@ -5,10 +5,12 @@ using System.Text;
 
 namespace TEG.SSO.Entity.Param
 {
+    public class ChangePassword : RequestBase<ChangePasswordParam>
+    { }
     /// <summary>
     /// 修改密码
     /// </summary>
-   public  class ChangePassword:RequestBase
+    public  class ChangePasswordParam
     {
         /// <summary>
         /// 原密码

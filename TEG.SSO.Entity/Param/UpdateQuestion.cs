@@ -8,12 +8,11 @@ namespace TEG.SSO.Entity.Param
     /// <summary>
     /// 更新密保问题
     /// </summary>
-   public  class UpdateQuestion:RequestBase
+   public  class UpdateQuestion:RequestBase<List<UpdateQuestionContent>>
     {
-        public List<UpdateQuestionContent> Question { get; set; }
     }
 
-    public class UpdateQuestionContent: QuestionContent
+    public class UpdateQuestionContent
     {
         /// <summary>
         /// id
@@ -25,5 +24,10 @@ namespace TEG.SSO.Entity.Param
         /// </summary>
         [Required]
         public bool IsDisabled { get; set; }
+        /// <summary>
+        /// 问题内容
+        /// </summary>
+        [Required]
+        public QuestionContent Content { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace TEG.SSO.Service
         public async Task<Result<QuestionInfo>> GetCurrentQuestionByUserAsync(PasswordRequest param)
         {
             //验证密码
-            var userExist = readOnlyContext.Users.Any(a => a.ID == currentUser.UserID && a.Password == param.Password);
+            var userExist = readOnlyContext.Users.Any(a => a.ID == currentUser.UserID && a.Password == param.Data.Password);
             if (!userExist)
             {
                 throw new CustomException("PasswordError", "密码错误");
@@ -56,7 +56,7 @@ namespace TEG.SSO.Service
              * 1，校验密码、questionid是否存在数据
              * 2，存储user-question
              * **/
-            var userExist = masterContext.Users.Any(a => !a.IsDisabled && a.ID == currentUser.UserID && a.Password == param.Password);
+            var userExist = masterContext.Users.Any(a => !a.IsDisabled && a.ID == currentUser.UserID && a.Password == param.Data.Password);
             if (!userExist)
             {
                 throw new CustomException("PasswordError", "密码错误");
@@ -66,7 +66,7 @@ namespace TEG.SSO.Service
             {
                 throw new CustomException("SecurityQuestionExist", "已有密保问题");
             }
-            var question = await base.GetFirstOrDefaultAsync(a => !a.IsDisabled && a.ID == param.SecurityQuestionID, fromMasterDb: true);
+            var question = await base.GetFirstOrDefaultAsync(a => !a.IsDisabled && a.ID == param.Data.SecurityQuestionID, fromMasterDb: true);
             if (question == null)
             {
                 throw new CustomException("SecurityQuestionError", "未知的问题选项");
@@ -76,8 +76,8 @@ namespace TEG.SSO.Service
             masterContext.UserSecurityQuestions.Add(new UserSecurityQuestion
             {
                 UserID = currentUser.UserID,
-                QuestionID = param.SecurityQuestionID,
-                Answer = param.Answer,
+                QuestionID = param.Data.SecurityQuestionID,
+                Answer = param.Data.Answer,
                 CreateTime = utcNow,
                 ModifyTime = utcNow,
                 LastUpdateAccountName = currentUser.AccountName
@@ -101,25 +101,25 @@ namespace TEG.SSO.Service
              * **/
             var result = new Result();
 
-            var userExist = masterContext.Users.Any(a => !a.IsDisabled && a.ID == currentUser.UserID && a.Password == param.Password);
+            var userExist = masterContext.Users.Any(a => !a.IsDisabled && a.ID == currentUser.UserID && a.Password == param.Data.Password);
             if (!userExist)
             {
                 throw new CustomException("PasswordError", "密码错误");
             }
-            var oldQuestioin = masterContext.UserSecurityQuestions.FirstOrDefault(a => a.UserID == currentUser.UserID && a.QuestionID == param.OldSecurityQuestionID && a.Answer == param.OldSecurityQuestionAnswer);
+            var oldQuestioin = masterContext.UserSecurityQuestions.FirstOrDefault(a => a.UserID == currentUser.UserID && a.QuestionID == param.Data.OldSecurityQuestionID && a.Answer == param.Data.OldSecurityQuestionAnswer);
 
             if (oldQuestioin == null)
             {
                 throw new CustomException("OldAnsowerError", "原安全问题回答错误");
             }
-            var question = await GetFirstOrDefaultAsync(a => !a.IsDisabled && a.ID == param.SecurityQuestionID, fromMasterDb: true);
+            var question = await GetFirstOrDefaultAsync(a => !a.IsDisabled && a.ID == param.Data.SecurityQuestionID, fromMasterDb: true);
             if (question == null)
             {
                 throw new CustomException("SecurityQuestionError", "未知的问题选项");
             }
             var utcNow = DateTime.UtcNow;
-            oldQuestioin.QuestionID = param.SecurityQuestionID;
-            oldQuestioin.Answer = param.Answer;
+            oldQuestioin.QuestionID = param.Data.SecurityQuestionID;
+            oldQuestioin.Answer = param.Data.Answer;
             oldQuestioin.ModifyTime = utcNow;
             oldQuestioin.LastUpdateAccountName = currentUser.AccountName;
             await masterContext.SaveChangesAsync();
@@ -148,7 +148,7 @@ namespace TEG.SSO.Service
         {
             var list = new List<SecurityQuestion>();
             var utcNow = DateTime.UtcNow;
-            param.Content.ForEach(a =>
+            param.Data.ForEach(a =>
             {
                 list.Add(new SecurityQuestion
                 {
@@ -172,12 +172,12 @@ namespace TEG.SSO.Service
         {
             var list = new List<SecurityQuestion>();
             var utcNow = DateTime.UtcNow;
-            param.Question.ForEach( a =>
+            param.Data.ForEach( a =>
             {
                 var data=  masterDbSet.FirstOrDefault(m=>m.ID==a.ID);
                 data.LastUpdateAccountName = currentUser.AccountName;
                 data.ModifyTime = utcNow;
-                data.QuestionContent = a.ToJson();
+                data.QuestionContent = a.Content.ToJson();
                 data.IsDisabled = a.IsDisabled;
                 masterContext.SaveChanges();
             });
@@ -185,5 +185,24 @@ namespace TEG.SSO.Service
             return new SuccessResult();
         }
 
+        /// <summary>
+        /// 删除指定的密保问题
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<Result> DeleteSecurityQuestionAsync(RequestID param)
+        {
+            if (param.Data.IDs.Any(a => !masterDbSet.Any(m => m.ID == a)))
+            {
+                throw new CustomException("IDError","错误的ID信息");
+            }
+            var userQuestionExist = masterDbSet.Where(a => param.Data.IDs.Contains(a.ID)).Include(a => a.UserSecurityQuestions).Any(a => a.UserSecurityQuestions != null && a.UserSecurityQuestions.Count() > 0);
+            if (userQuestionExist)
+            {
+                throw new CustomException("UserQuestionExist", "密保问题被使用");
+            }
+            await DeleteManyAsync(a => param.Data.IDs.Contains(a.ID));
+            return new SuccessResult();
+        }
     }
 }

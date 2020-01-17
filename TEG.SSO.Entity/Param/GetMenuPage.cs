@@ -5,7 +5,9 @@ using System.Text;
 
 namespace TEG.SSO.Entity.Param
 {
-   public  class GetMenuPage:PageParam
+    public class GetMenuPage : RequestBase<GetMenuPager>
+    { }
+   public  class GetMenuPager:Pager
     {
         /// <summary>
         /// 业务系统id。下拉列表选择。

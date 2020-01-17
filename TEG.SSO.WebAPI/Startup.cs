@@ -12,6 +12,7 @@ using TEG.Framework.Standard.Cache;
 using TEG.SSO.Common;
 using TEG.SSO.EFCoreContext;
 using TEG.SSO.Entity.DTO;
+using TEG.SSO.LogDBContext;
 using TEG.SSO.Service;
 using TEG.SSO.WebAPI.Filter;
 
@@ -21,8 +22,7 @@ namespace TEG.SSO.WebAPI
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-            AutoMapperHelper.Config();
+            Configuration = configuration;           
             //BaseCore.InitConfigurationBuilder();//参数可指定加载其他json配置文件
         }
 
@@ -42,6 +42,7 @@ namespace TEG.SSO.WebAPI
             services.AddScoped<MenuService>();
             services.AddScoped<AuthorizationObjectService>();
             services.AddScoped<OrganizationService>();
+            services.AddScoped<RoleService>();
             services.AddScoped<RedisCache>();
             services.AddScoped<UserInfoAndRoleRight>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -80,7 +81,6 @@ namespace TEG.SSO.WebAPI
             {
                 app.UseHsts();
             }
-            BaseCore.ServiceProvider = svp;
             DbContextInit.DbContextInitAll(svp);
             //app.UseHttpsRedirection();
             app.UseMvc(routes =>
